@@ -420,18 +420,33 @@ body.dark-mode .filter-btn.active { color: #fff; background: var(--primary-color
   background-color: var(--card-bg); color: var(--primary-color);
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
+/* --- SWIPER SLIDE 너비/패딩/오버플로우 --- */
+.coupon-container {
+  overflow-x: auto;
+  padding-bottom: 90px;
+}
+.swiper {
+  width: 100% !important;
+  padding-bottom: 50px !important;
+  overflow: visible !important;
+}
 .swiper-wrapper {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: stretch !important;
+  width: 100% !important;
 }
 .swiper-slide {
+  width: 340px !important;
+  max-width: 94vw;
+  min-width: 320px;
+  box-sizing: border-box;
   display: flex !important;
   justify-content: center !important;
-  align-items: stretch !important;
-  height: auto !important;
 }
-
+body {
+  margin-bottom: 100px;
+}
+.site-footer {
+  margin-top: 70px;
+}
 .swiper-button-prev, .swiper-button-next {
   z-index: 10;
   top: 45%;
