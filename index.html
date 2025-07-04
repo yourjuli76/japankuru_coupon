@@ -376,7 +376,29 @@ body.dark-mode { background: linear-gradient(135deg, #181c27 0%, #27324a 100%);}
   .card-face { box-shadow: 0 6px 20px rgba(0,0,0,0.11); }
   .list-title { font-size: 1.5em; }
 }
-
+.coupon-card {
+  width: 100%; height: 100%;
+  position: relative;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
+.coupon-card-scene.is-flipped .coupon-card {
+  transform: rotateY(180deg);
+}
+.card-face {
+  position: absolute;
+  width: 100%; height: 100%;
+  backface-visibility: hidden;
+  background: linear-gradient(135deg, var(--card-bg) 85%, #f5f7fa 100%);
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  display: flex; flex-direction: column; overflow: hidden;
+  transition: box-shadow .5s cubic-bezier(.22,.61,.36,1);
+}
+.card-face--back {
+  transform: rotateY(180deg);
+}
 /* --------------------------------------------------
    CONDITION BAR & FILTER/SORT
 -------------------------------------------------- */
