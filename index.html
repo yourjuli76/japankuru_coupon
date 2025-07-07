@@ -468,29 +468,63 @@ body.dark-mode .filter-btn.active { color: #fff; background: var(--primary-color
 /* ====================================
    Swiper を中央寄せにする最小限の CSS
 ==================================== */
+/* =================================================
+   SWIPER 레이아웃 CSS (모바일 우선)
+================================================= */
+
+/* --- 기본 (모바일) --- */
 .swiper {
   width: 100%;
-  /* 핵심 변경사항: 컨테이너 외부 콘텐츠도 보이도록 설정 */
-  overflow: visible !important;
-  padding-left: 20px;  /* 왼쪽에 여백 추가 */
-  padding-right: 20px; /* 오른쪽에 여백 추가 */
-  /* 페이지네이션을 위한 기존 하단 여백 유지 */
-  padding-bottom: 80px !important;
+  height: auto;
+  /* 모바일에선 양옆이 잘려야 하므로 hidden! */
+  overflow: hidden;
+  padding-top: 20px;
+  padding-bottom: 50px; /* 페이지네이션 공간 확보 */
 }
 
-/* 내부 wrapper도 콘텐츠를 잘라내지 않도록 설정 */
-.swiper-wrapper {
-  overflow: visible !important;
-  display: flex !important;
-  justify-content: center !important;
-}
-
-/* 개별 슬라이드와 카드 자체도 콘텐츠를 자르지 않도록 설정 */
 .swiper-slide {
+  width: 300px; /* 모든 카드 너비 고정 */
+  height: auto;
   flex-shrink: 0;
-  width: 300px;
-  margin: 0 12px;
-  overflow: visible !important;
+  opacity: 0.5; /* 비활성 슬라이드는 반투명 */
+  transform: scale(0.85); /* 비활성 슬라이드는 작게 */
+  transition: opacity 0.4s, transform 0.4s;
+}
+
+/* 현재 활성화된 슬라이드 (중앙) */
+.swiper-slide-active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* --- 768px 이상 (태블릿) --- */
+@media (min-width: 768px) {
+  .swiper {
+    /* 양옆 카드를 보여주기 위해 visible 로 변경 */
+    overflow: visible;
+  }
+  /*
+   태블릿부터는 'auto' 너비를 가지므로
+   개별 슬라이드의 투명도/크기 조절은 비활성화합니다.
+   (필요하다면 이 부분을 커스터마이징)
+  */
+  .swiper-slide {
+    opacity: 1;
+    transform: scale(1);
+    width: 320px; /* 태블릿/데스크탑 카드 너비 */
+  }
+}
+
+/* --- 1024px 이상 (데스크탑) --- */
+@media (min-width: 1024px) {
+  /* 데스크탑에서는 특별히 변경할 내용이 없음 */
+  /* 필요 시 여기에 추가 스타일 작성 */
+}
+
+/* Swiper 버튼 위치 조정 */
+.swiper-button-prev,
+.swiper-button-next {
+    color: #007bff; /* 필요 시 색상 변경 */
 }
 
 .coupon-card-scene {
@@ -657,7 +691,18 @@ body.dark-mode .back-map-wrapper iframe { filter: invert(1) hue-rotate(200deg) b
 .coupon-container {
   margin-bottom: 120px;  /* 필요에 따라 조절 */
 }
-
+/* ====================================
+   모바일 화면 전용 스타일 (767px 이하)
+==================================== */
+@media (max-width: 767px) {
+  .swiper {
+    /* 모바일에서는 옆 카드가 보이지 않도록 overflow를 hidden으로 설정 */
+    overflow: hidden !important;
+    /* 모바일에서는 좌우 여백을 제거하여 카드가 화면에 꽉 차도록 함 */
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
 
   </style>
 </head>
@@ -1102,35 +1147,44 @@ body.dark-mode .back-map-wrapper iframe { filter: invert(1) hue-rotate(200deg) b
     };
   
 // --- Swiper 초기화 ---
-// --- Swiper 초기화 ---
 function initSwiper() {
-  state.swiper = new Swiper(dom.swiper, {
-    // --- 모바일 기본 설정 (767px 이하) ---
-    slidesPerView: 1,      // 화면에는 항상 슬라이드 1개만 보이도록 설정
-    spaceBetween: 20,      // 슬라이드 간 간격
-    centeredSlides: true,  // 현재 슬라이드를 항상 중앙에 위치
-    grabCursor: true,
-    watchOverflow: true,
-    pagination: { el: '.swiper-pagination', clickable: true },
-    navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+  // 만약 이미 Swiper 인스턴스가 있다면 파괴하고 다시 생성합니다. (필터링 시 오류 방지)
+  if (state.swiper) {
+    state.swiper.destroy(true, true);
+  }
 
-    // --- 화면 크기별 설정 (breakpoints) ---
+  state.swiper = new Swiper(dom.swiper, {
+    // --- 모바일 기본 설정 (가장 작은 화면 기준) ---
+    slidesPerView: 1,      // 모바일에선 항상 슬라이드 1개만 표시
+    spaceBetween: 16,      // 모바일에서의 슬라이드 간격
+    centeredSlides: true,  // 현재 슬라이드를 항상 중앙에 배치
+    grabCursor: true,
+    pagination: {
+      el: '.swiper-pagination',
+      clickable: true
+    },
+    navigation: {
+      nextEl: '.swiper-button-next',
+      prevEl: '.swiper-button-prev'
+    },
+
+    // --- 화면 크기별 반응형 설정 (Breakpoints) ---
+    // min-width 기준으로 동작합니다.
     breakpoints: {
-      // 768px 이상일 때 (태블릿)
+      // 768px 이상 화면부터 (태블릿)
       768: {
-        slidesPerView: 2, // 슬라이드 2개를 보이도록 설정
+        slidesPerView: 'auto', // 'auto'로 설정하여 양 옆 카드가 살짝 보이게 함
         spaceBetween: 24,
-        centeredSlides: true,
       },
-      // 1024px 이상일 때 (데스크탑)
+      // 1024px 이상 화면부터 (데스크탑)
       1024: {
-        slidesPerView: 3, // 슬라이드 3개를 보이도록 설정
+        slidesPerView: 3,      // 데스크탑에선 슬라이드 3개를 온전히 표시
         spaceBetween: 24,
-        centeredSlides: true,
-        centerInsufficientSlides: true,
-        centeredSlidesBounds: true,
       }
-    }
+    },
+    // Swiper가 업데이트 될 때마다 레이아웃을 다시 계산하도록 합니다.
+    observer: true,
+    observeParents: true,
   });
 }
 
