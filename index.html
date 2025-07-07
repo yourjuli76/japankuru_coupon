@@ -465,11 +465,6 @@ body.dark-mode .filter-btn.active { color: #fff; background: var(--primary-color
   background-color: var(--card-bg); color: var(--primary-color);
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
-/* --- SWIPER SLIDE 너비/패딩/오버플로우 --- */
-.coupon-container {
-  overflow-x: auto;
-  padding-bottom: 90px;
-}
 /* ====================================
    Swiper を中央寄せにする最小限の CSS
 ==================================== */
@@ -504,7 +499,7 @@ body {
   top: 45%;
   transform: translateY(-50%);
 }
-/* Swiper invisible */
+/* Swiper invisible 
 .swiper-slide.swiper-slide-invisible {
   visibility: hidden !important;
   pointer-events: none !important;
@@ -512,9 +507,14 @@ body {
   width: 0 !important;
   margin: 0 !important;
   padding: 0 !important;
-}
-html, body {
-  overflow-x: hidden;
+}*/
+
+html, body,
+.swiper,
+.swiper-wrapper,
+.swiper-slide {
+  overflow-x: visible !important;
+  overflow-y: visible !important;
 }
 
 /* --------------------------------------------------
@@ -612,11 +612,34 @@ body.dark-mode .back-map-wrapper iframe { filter: invert(1) hue-rotate(200deg) b
 }
 .toast-notification.show { opacity: 1; transform: translateY(0);}
 
+.swiper,
+.swiper-wrapper,
+.swiper-slide {
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+}
 
-/* 만약 좌/우에 기본 패딩이 있다면 제거 */
+/* 카드가 좌우로 살짝 삐져나오도록 여유를 주고 싶으면 */
 .swiper {
-  padding-left: 0 !important;
-  padding-right: 0 !important;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+/* 1) 슬라이더 전체에 아래 여백을 늘려서 카드가 완전히 보이도록 */
+.swiper {
+  /* 기본 bottom padding 이 너무 작아서 pagination이 카드 위로 올라옵니다 */
+  padding-bottom: 80px !important;  
+}
+
+/* 2) pagination dot 위치를 약간 더 아래로 내립니다 */
+.swiper-pagination {
+  bottom: 16px !important;  /* 카드 하단에서 16px 위 */
+  z-index: 10;               /* 카드 위에 뜨지 않고 항상 뒤에 있도록 */
+}
+
+/* (선택) 카드 컨테이너 아래에도 마진을 줘서, 
+   pagination까지 포함한 전체 요소가 본문에 닿지 않게 */
+.coupon-container {
+  margin-bottom: 120px;  /* 필요에 따라 조절 */
 }
 
 
