@@ -285,6 +285,7 @@ body.dark-mode .coupon-card-scene { border: 1.5px solid #364366; }
 .filter-group {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
 }
@@ -363,16 +364,19 @@ body.dark-mode .back-map-wrapper iframe { filter: invert(1) hue-rotate(200deg) b
 body.dark-mode { background: linear-gradient(135deg, #181c27 0%, #27324a 100%);}
 @media (max-width: 600px) {
   .coupon-card-scene { margin-bottom: 24px; }
-  .card-face { box-shadow: 0 6px 20px rgba(0,0,0,0.11); }
+
   .list-title { font-size: 1.5em; }
 }
 .coupon-card {
   width: 100%; height: 100%;
   position: relative;
+  cursor: pointer;
   transition: transform 0.8s;
   transform-style: preserve-3d;
-  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(30,40,90,0.14), 0 1.5px 8px rgba(30,40,90,0.07);
 }
+/* hover, is-flipped 등은 별도 */
+.coupon-card:hover { /* … */ }
 .coupon-card-scene.is-flipped .coupon-card {
   transform: rotateY(180deg);
 }
@@ -380,15 +384,16 @@ body.dark-mode { background: linear-gradient(135deg, #181c27 0%, #27324a 100%);}
   position: absolute;
   width: 100%; height: 100%;
   backface-visibility: hidden;
-  background: linear-gradient(135deg, var(--card-bg) 85%, #f5f7fa 100%);
   border-radius: 15px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-  display: flex; flex-direction: column; overflow: hidden;
+  display: flex; flex-direction: column;
+  overflow: hidden;
   transition: box-shadow .5s cubic-bezier(.22,.61,.36,1);
+  /* background 는 변수 기반으로 하나만 */
+  background: linear-gradient(135deg, var(--card-bg) 85%, #f5f7fa 100%);
 }
-.card-face--back {
-  transform: rotateY(180deg);
-}
+.card-face--back { transform: rotateY(180deg); }
+
 /* すべての画面幅でカテゴリエリアを中央寄せに */
 .filter-sort-wrapper {
   display: flex;           /* 横並び */
@@ -459,19 +464,22 @@ body.dark-mode .filter-btn.active { color: #fff; background: var(--primary-color
   padding-bottom: 90px;
 }
 .swiper {
-  width: auto !important;
+  width: 100% !important;
   padding-bottom: 50px !important;
   overflow: visible !important;
   /*display: flex;*/
   justify-content: center;
+  touch-action: pan-y;
 }
 .swiper-wrapper {
   display: flex !important;
   justify-content: center !important;
+  gap: 20px;  /* 카드 간 간격 조정 */
+  padding: 0 !important;
 }
 .swiper-slide {
   flex-shrink: 0;
-  width: auto;
+  width: 300px;
   display: flex;
   justify-content: center;
 }
@@ -496,7 +504,9 @@ body {
   margin: 0 !important;
   padding: 0 !important;
 }
-
+html, body {
+  overflow-x: hidden;
+}
 
 /* --------------------------------------------------
    LIST TITLE
@@ -600,15 +610,6 @@ body.dark-mode .back-map-wrapper iframe { filter: invert(1) hue-rotate(200deg) b
   padding-right: 0 !important;
 }
 
-.swiper-slide {
-  margin: 0 10px !important;   /* 슬라이드 간격, 필요에 따라 조정 */
-  float: none !important;
-}
-
-.swiper {
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-}
 
   </style>
 </head>
@@ -1053,31 +1054,39 @@ body.dark-mode .back-map-wrapper iframe { filter: invert(1) hue-rotate(200deg) b
     };
   
     // --- Swiper 초기화 ---
-    function initSwiper() {
+// --- Swiper 초기화 ---
+function initSwiper() {
   state.swiper = new Swiper(dom.swiper, {
-    slidesPerView: 'auto',
+    // 모바일 기본: 슬라이드 1개씩
+    slidesPerView: 1,
     spaceBetween: 20,
     grabCursor: true,
-    centeredSlides: true,
-    centeredSlidesBounds: true,
-    centerInsufficientSlides: true,    // ← 追加
-    watchOverflow: true,                // ← 追加
+    // 중앙 정렬은 원하시면 켜고 끌 수 있습니다
+    centeredSlides: false,
+    watchOverflow: true,
+
+    // 페이징 / 내비게이션
     pagination: { el: '.swiper-pagination', clickable: true },
     navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+
+    // 화면 크기에 따른 분기
     breakpoints: {
+      // 화면 너비 768px 이상: 한 줄에 2개
       768: {
         slidesPerView: 2,
-        centeredSlides: true,           // ← ブレークポイントにも同じ設定を
-        centerInsufficientSlides: true  // ← これも
+        spaceBetween: 20,
+        centeredSlides: true,
       },
+      // 화면 너비 1024px 이상: 한 줄에 3개
       1024: {
         slidesPerView: 3,
+        spaceBetween: 24,
         centeredSlides: true,
-        centerInsufficientSlides: true
       }
     }
   });
 }
+
 
   
     // --- 지도 초기화 ---
@@ -1296,84 +1305,81 @@ function updateFilterCounts() {
       if (searchBtn) searchBtn.onclick = () => updateView();
     }
   
-    // --- 카드 목록/지도 필터링 & 정렬 ---
-    function updateView() {
-  dom.allSlides = Array.from(document.querySelectorAll('.swiper-slide'));
+// --- 카드 목록/지도 필터링 & 정렬 ---
+// --- 카드 목록/지도 필터링 & 정렬 ---
+function updateView() {
+  // 0) masterSlides는 init()에서 한 번만 저장된, 초기 모든 .swiper-slide 요소 배열입니다.
+  const allSlides = state.masterSlides;
+
+  // 1) 현재 필터/검색어/정렬값 읽기
   const activeFilterBtn = dom.controlsContainer.querySelector('.filter-btn.active');
   if (!activeFilterBtn) return;
-
   const activeFilter = activeFilterBtn.dataset.filter;
-  const searchTerm = dom.searchInput.value.trim().toLowerCase();
-  const sortValue = dom.sortSelect.value;
+  const searchTerm   = dom.searchInput.value.trim().toLowerCase();
+  const sortValue    = dom.sortSelect.value;
 
-  let visibleSlides = [];
-
-  dom.allSlides.forEach(slide => {
+  // 2) 필터링
+  let filtered = allSlides.filter(slide => {
     const card = slide.querySelector('.coupon-card-scene');
-    let isVisible = true;
-
-    // 1. 검색어로 1차 필터링
-    if (searchTerm && !card.textContent.toLowerCase().includes(searchTerm)) {
-      isVisible = false;
+    // 검색어
+    if (searchTerm && !card.textContent.toLowerCase().includes(searchTerm)) return false;
+    // 저장 필터
+    if (activeFilter === 'saved' && !state.savedCouponIds.includes(card.dataset.couponId)) return false;
+    // 카테고리 필터
+    if (activeFilter !== 'all' && activeFilter !== 'saved' && activeFilter !== 'nearby') {
+      if (card.dataset.category !== activeFilter) return false;
     }
-
-    // 2. 필터 종류별 분기
-    if (isVisible) {
-      if (activeFilter === 'all' || activeFilter === 'nearby') {
-        // 모두 표시, 주변
-        // 아무 조건 X
-      } else if (activeFilter === 'saved') {
-        if (!state.savedCouponIds.includes(card.dataset.couponId)) isVisible = false;
-      } else {
-        // 카테고리 필터: 정확히 일치해야 함!
-        if (card.dataset.category !== activeFilter) isVisible = false;
-      }
-    }
-
-    // --- Swiper에서 숨김 클래스 및 스타일 모두 적용 ---
-    slide.classList.toggle('swiper-slide-invisible', !isVisible);
-    //slide.style.display = isVisible ? 'flex' : 'none';//
-
-    // 거리뱃지는 nearby 때만
-    const distBadge = slide.querySelector('.distance-badge');
-    if (distBadge && activeFilter !== 'nearby') distBadge.style.display = 'none';
-
-    if (isVisible) visibleSlides.push(slide);
+    return true;
   });
 
-  // --- 정렬 ---
+  // 3) 정렬
   if (sortValue === 'expiry') {
-    visibleSlides.sort((a, b) => {
-      const dateA = a.querySelector('.coupon-card-scene').dataset.expiry || '';
-      const dateB = b.querySelector('.coupon-card-scene').dataset.expiry || '';
-      return dateA.localeCompare(dateB);
-    });
-  } else if (sortValue === 'discount') {
-    visibleSlides.sort((a, b) => {
-      function extractNum(str) { const match = str.match(/(\d+)(?=%)/); return match ? parseInt(match[1]) : 0; }
-      const aNum = extractNum(a.querySelector('.card-offer').textContent);
-      const bNum = extractNum(b.querySelector('.card-offer').textContent);
-      return bNum - aNum;
-    });
-  } else if (activeFilter === 'nearby') {
-    visibleSlides.sort((a, b) =>
-      (parseFloat(a.querySelector('.coupon-card-scene').dataset.distance || 9999) -
-       parseFloat(b.querySelector('.coupon-card-scene').dataset.distance || 9999))
+    filtered.sort((a,b)=>
+      a.querySelector('.coupon-card-scene').dataset.expiry
+        .localeCompare(b.querySelector('.coupon-card-scene').dataset.expiry)
     );
+  } else if (sortValue === 'discount') {
+    const num = el=>{
+      const m=el.querySelector('.card-offer').textContent.match(/(\d+)/);
+      return m ? +m[1] : 0;
+    };
+    filtered.sort((a,b)=> num(b) - num(a));
+  } else if (activeFilter === 'nearby') {
+    filtered.sort((a,b)=>{
+      const da=+a.querySelector('.coupon-card-scene').dataset.distance||0;
+      const db=+b.querySelector('.coupon-card-scene').dataset.distance||0;
+      return da - db;
+    });
   } else {
-    visibleSlides.sort((a, b) => a.dataset.originalOrder - b.dataset.originalOrder);
+    filtered.sort((a,b)=> a.dataset.originalOrder - b.dataset.originalOrder);
   }
-  visibleSlides.forEach(slide => dom.swiperWrapper.appendChild(slide));
 
-  // 지도 연동
-  const visibleCards = visibleSlides.map(slide => slide.querySelector('.coupon-card-scene'));
-  if (state.currentView === 'map') updateMapMarkers(visibleCards);
+  // 4) Swiper 슬라이드 전부 제거
+  state.swiper.removeAllSlides();
 
-  dom.emptyState.classList.toggle('show', visibleSlides.length === 0);
-  state.swiper.update && state.swiper.update();
-  if (visibleSlides.length > 0) state.swiper.slideTo(0, 0);
-  updateFilterCounts(); // visibleSlides 넘길 필요 없음
+  // 5) 필터 후 남은 슬라이드만 Swiper에 추가
+  filtered.forEach(slide => {
+    // 슬라이드 요소 자체를 재사용
+    state.swiper.appendSlide(slide);
+  });
+
+  // 6) Swiper 업데이트 & 첫 슬라이드로 이동
+  state.swiper.update();
+  if (filtered.length) state.swiper.slideTo(0, 0);
+
+  // 7) 빈 상태 표시 토글
+  dom.emptyState.classList.toggle('show', filtered.length === 0);
+
+  // 8) 필터 버튼 옆 개수 갱신 (masterSlides 기준)
+  updateFilterCounts();
+
+  // 9) 지도 모드일 때 마커 갱신
+  if (state.currentView === 'map') {
+    const cards = filtered.map(s => s.querySelector('.coupon-card-scene'));
+    updateMapMarkers(cards);
+  }
 }
+
 
   
     // --- 기타 유틸 ---
@@ -1449,6 +1455,7 @@ dom.controlsContainer.addEventListener('click', e => {
   
     // --- 초기화 ---
     function init() {
+      state.masterSlides = Array.from(document.querySelectorAll('.swiper-slide'));
       state.savedCouponIds = JSON.parse(localStorage.getItem('japankuruSavedCoupons') || '[]');
       if (localStorage.getItem('japankuruTheme') === 'dark') document.body.classList.add('dark-mode');
       initSwiper();
