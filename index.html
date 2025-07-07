@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Japankuru クーポンページ (最終統合版)</title>
+  <title>Japankuru クーポンページ (0708)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -468,83 +468,50 @@ body.dark-mode .filter-btn.active { color: #fff; background: var(--primary-color
 /* ====================================
    Swiper を中央寄せにする最小限の CSS
 ==================================== */
-
-/* =================================================
-   SWIPER 레이아웃 CSS (진짜 최종 해결 버전)
-================================================= */
-
+/* ====================================
+   SWIPER レイアウト調整
+==================================== */
 .swiper {
-  width: 100%;
-  height: auto;
-  padding-top: 20px;
-  padding-bottom: 50px;
+  position: relative;
+  overflow: visible !important;
+  padding-left: 20px;   /* カード端が少し見える余白 */
+  padding-right: 20px;
 }
 
-/* --- 모바일 뷰 (max-width: 767px) --- */
-@media (max-width: 767px) {
-  .swiper {
-    overflow: hidden;
-  }
-  /*
-    .swiper-wrapper에 대한 flex 정렬 규칙을 모두 제거합니다.
-    이제 Swiper의 JS 옵션이 모든 레이아웃을 제어합니다.
-  */
-}
-
-/* --- 태블릿 / PC 뷰 (min-width: 768px) --- */
-@media (min-width: 768px) {
-  .swiper {
-    overflow: visible;
-  }
-  .swiper-wrapper {
-    /* PC에서는 슬라이드 그룹 전체를 중앙에 배치 */
-    justify-content: center;
-  }
-}
-
-.swiper-slide {
-  width: auto; /* 부모인 슬라이드는 내용물 크기에 맞춤 */
-  flex-shrink: 0;
-  height: auto;
-}
-
-/* 기본 카드 크기 */
-.coupon-card-scene {
-  width: 320px; /* 카드 자체에 고정 너비를 부여 */
-}
-
-/* 반응형 카드 크기 조정 */
-@media (min-width: 768px) and (max-width: 1199px) {
-  .coupon-card-scene { /* 카드 자체의 너비를 조정 */
-    width: 270px;
-  }
-}
-
-/* PC에서 wrapper 정렬 */
-@media (min-width: 768px) {
-    .swiper-wrapper {
-        justify-content: center;
-    }
-}
-
-/* 필터링 시 보이지 않을 슬라이드를 위한 클래스 */
-.swiper-slide-hidden {
-  display: none;
-}
-body {
-  margin-bottom: 100px;
-}
-.site-footer {
-  margin-top: 70px;
-}
-.swiper-button-prev, .swiper-button-next {
-  z-index: 10;
-  top: 45%;
+/* 矢印を白地＋丸ボタンに */
+.swiper-button-prev,
+.swiper-button-next {
+  position: absolute;
+  top: 50%;
   transform: translateY(-50%);
+  z-index: 20;
+  width: 36px;
+  height: 36px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--dark-blue);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.swiper-button-prev { left: 8px; }
+.swiper-button-next { right: 8px; }
+
+/* スライド間のギャップを今の 2/3 程度に */
+.swiper-slide {
+  width: auto !important;
+  flex-shrink: 0;
+  margin: 0 8px;  /* もとの 12px → 8px に調整 */
 }
 
-/* --------------------------------------------------
-   LIST TITLE
+/* モバイルでは必ず１枚ずつ */
+@media (max-width: 767px) {
+  .swiper-slide {
+    width: calc(100% - 40px) !important; /* 両端余白分を差し引いて１枚 */
+  }
+}
+
 -------------------------------------------------- */
 .list-title-wrapper { text-align: center; margin-bottom: 30px; }
 .list-title {
@@ -1223,31 +1190,37 @@ saveBtn.onclick = e => {
     }
   
         // 공유 버튼
-        const shareBtn = slide.querySelector('.share-btn');
-        if (shareBtn) {
-          shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> 共有';
-          shareBtn.onclick = async e => {
-            e.stopPropagation();
-            const title = card.querySelector('.card-store-name').textContent;
-            const text = card.querySelector('.card-offer').textContent + ' ' + card.querySelector('.card-description').textContent;
-            const url = location.href.split('#')[0] + '#coupon-' + card.dataset.couponId;
-            if (navigator.share) {
-              try {
-                await navigator.share({ title, text, url });
-                showToast('共有しました！');
-              } catch {
-                showToast('共有をキャンセルしました。');
-              }
-            } else {
-              try {
-                await navigator.clipboard.writeText(url);
-                showToast('クーポンURLをコピーしました！');
-              } catch {
-                prompt('このURLをコピーして共有してください:', url);
-              }
-            }
-          };
-        }
+ // DOMContentLoaded 内の bindEventListeners() の末尾、または init() の直後に追加
+document.body.addEventListener('click', async e => {
+  const shareBtn = e.target.closest('.share-btn');
+  if (!shareBtn) return;
+  e.stopPropagation();
+
+  // ボタンに対応するカードシーン要素を取得
+  const scene = shareBtn.closest('.coupon-card-scene');
+  const title = scene.querySelector('.card-store-name').textContent;
+  const offer = scene.querySelector('.card-offer').textContent;
+  const desc  = scene.querySelector('.card-description')?.textContent || '';
+  const url   = location.href.split('#')[0] + '#coupon-' + scene.dataset.couponId;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({ title, text: offer + ' ' + desc, url });
+      showToast('共有しました！');
+    } catch {
+      showToast('共有をキャンセルしました。');
+    }
+  } else {
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast('クーポンURLをコピーしました！');
+    } catch {
+      prompt('このURLをコピーして共有してください:', url);
+    }
+  }
+});
+
+       
   
         // 카테고리 아이콘
         const categoryIcon = slide.querySelector('.card-category-icon');
