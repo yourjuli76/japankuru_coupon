@@ -282,16 +282,6 @@ body.dark-mode .coupon-card-scene { border: 1.5px solid #364366; }
   justify-content: center;
   gap: 32px 24px;
 }
-
-.controls-container {
-  display: flex;
-  justify-content: center;  /* 중앙정렬로 변경 */
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 40px;
-  flex-wrap: wrap;
-}
-
 .filter-group {
   display: flex;
   gap: 10px;
@@ -406,14 +396,20 @@ body.dark-mode { background: linear-gradient(135deg, #181c27 0%, #27324a 100%);}
   justify-content: center; /* 中央寄せ */
   gap: 10px 16px;          /* ボタン間の余白（お好みで調整） */
   margin-top: 12px;        /* 上段（周辺／保存済み）との隙間 */
-  width: 100%; 
+  align-self: stretch;
+    /* 1) 부모 너비 꽉 채우기 */
+    width: 100% !important;
+  /* 2) flex 아이템으로 늘어나기 */
+  flex: 1 1 auto !important;
+  /* 3) 부모의 align-items:center 에도 가로 폭을 유지하게 */
+  align-self: stretch !important;
 }
 
 /* 上段のボタン群と分離するため、controls-container の設定はそのまま残しつつ… */
 .controls-container {
   display: flex;
   flex-direction: column;  /* 上段と下段を縦積みに */
-  align-items: center;     /* 全体を中央揃え */
+  align-items: stretch;     /* 子要素(filter-sort-wrapper)を横いっぱいに広げる */
   gap: 16px;               /* 上段⇔下段の距離 */
   margin-bottom: 40px;
 }
@@ -448,7 +444,7 @@ body.dark-mode .filter-btn.active { color: #fff; background: var(--primary-color
   padding: 10px 15px; border-radius: 20px; border: 1px solid var(--border-color);
   background: var(--card-bg); color: var(--text-color); font-size: 16px; font-weight: 600; cursor: pointer;
 }
-.view-switcher { display: flex; background-color: var(--border-color); border-radius: 20px; padding: 4px;}
+.view-switcher { display: flex; background-color: var(--border-color); border-radius: 20px; padding: 4px; align-self: center;}
 .view-btn {
   border: none; background-color: transparent; padding: 6px 16px; border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer;
   display: flex; align-items: center; gap: 8px; color: var(--subtle-text); transition: all 0.3s;
@@ -470,16 +466,16 @@ body.dark-mode .filter-btn.active { color: #fff; background: var(--primary-color
   justify-content: center;
 }
 .swiper-wrapper {
-  width: auto !important;
   display: flex !important;
   justify-content: center !important;
 }
 .swiper-slide {
-  width: 340px !important;
-  max-width: 94vw;
-  min-width: 320px;
-  box-sizing: border-box;
+  flex-shrink: 0;
+  width: auto;
+  display: flex;
+  justify-content: center;
 }
+
 body {
   margin-bottom: 100px;
 }
@@ -597,22 +593,23 @@ body.dark-mode .back-map-wrapper iframe { filter: invert(1) hue-rotate(200deg) b
 }
 .toast-notification.show { opacity: 1; transform: translateY(0);}
 
-/* ─────────────────────────────────────────
-   Swiper transform 강제 해제 & 중앙정렬 유지
-   ───────────────────────────────────────── */
-.swiper-wrapper {
-  display: flex !important;
-  justify-content: center !important;
-  transform: none !important;       /* 인라인 translate3d 무시 */
-  margin: 0 auto !important;        /* 여유가 있으면 양쪽 margin 자동 */
-}
 
-.swiper, 
-.swiper-container {
+/* 만약 좌/우에 기본 패딩이 있다면 제거 */
+.swiper {
   padding-left: 0 !important;
   padding-right: 0 !important;
 }
-    
+
+.swiper-slide {
+  margin: 0 10px !important;   /* 슬라이드 간격, 필요에 따라 조정 */
+  float: none !important;
+}
+
+.swiper {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
   </style>
 </head>
 <body>
