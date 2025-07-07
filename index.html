@@ -470,23 +470,28 @@ body.dark-mode .filter-btn.active { color: #fff; background: var(--primary-color
   overflow-x: auto;
   padding-bottom: 90px;
 }
+/* ====================================
+   Swiper を中央寄せにする最小限の CSS
+==================================== */
 .swiper {
-  width: 100% !important;
-  padding-bottom: 50px !important;
-  overflow: visible !important;
-  /*display: flex;*/
-  justify-content: center;
-  touch-action: pan-y;
+  /* 親要素は幅いっぱい */
+  width: 100%;
+  overflow: visible; /* overflow: hidden だと transform の一部が隠れてしまう */
 }
+
+/* スライド群を flex で中央寄せ */
 .swiper-wrapper {
-  padding: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
 }
+
+/* 各スライドは固定幅＋flex-shrink:0 で揃える */
 .swiper-slide {
   flex-shrink: 0;
-  width: 300px;
-  display: flex;
-  justify-content: center;
+  width: 300px; /* あなたのレイアウトに合わせて */
+  margin: 0 12px; /* 任意：前後にちょっと隙間 */
 }
+
 
 body {
   margin-bottom: 100px;
@@ -1059,33 +1064,39 @@ body.dark-mode .back-map-wrapper iframe { filter: invert(1) hue-rotate(200deg) b
   
 // --- Swiper 초기화 ---
 function initSwiper() {
-// initSwiper() 안에서
-state.swiper = new Swiper(dom.swiper, {
-  // ① centeredSlides: true 유지
-  centeredSlides: true,
-  // ② slidesPerView: 기본값 1
-  slidesPerView: 1,
-  spaceBetween: 20,
-  grabCursor: true,
-  watchOverflow: true,
-  pagination: { el: '.swiper-pagination', clickable: true },
-  navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
-  breakpoints: {
-    // 모바일/태블릿에서도 한 장씩
-    768: {
-      slidesPerView: 1,
-      spaceBetween: 20,
-      centeredSlides: true,
-    },
-    // 데스크탑은 한 번에 세 장씩
-    1024: {
-      slidesPerView: 3,
-      spaceBetween: 24,
-      centeredSlides: true,
+  state.swiper = new Swiper(dom.swiper, {
+    // ① 常に中央寄せ
+    centeredSlides: true,
+    // ② スライド数不足時も中央寄せ
+    centerInsufficientSlides: true,
+    // ③ スライド群の両端に余白を作って中央寄せ
+    centeredSlidesBounds: true,
+
+    slidesPerView: 1,
+    spaceBetween: 20,
+    grabCursor: true,
+    watchOverflow: true,
+    pagination: { el: '.swiper-pagination', clickable: true },
+    navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+    breakpoints: {
+      768: {
+        slidesPerView: 1,
+        spaceBetween: 20,
+        centeredSlides: true,
+        centerInsufficientSlides: true,
+        centeredSlidesBounds: true,
+      },
+      1024: {
+        slidesPerView: 3,
+        spaceBetween: 24,
+        centeredSlides: true,
+        centerInsufficientSlides: true,
+        centeredSlidesBounds: true,
+      }
     }
-  }
-});
+  });
 }
+
 
   
     // --- 지도 초기화 ---
@@ -1121,7 +1132,12 @@ state.swiper = new Swiper(dom.swiper, {
   dom.allSlides.forEach(slide => {
     const card = slide.querySelector('.coupon-card-scene');
     const cardElem = slide.querySelector('.coupon-card');
-    // …saveBtn, shareBtn 설정 생략…
+    const saveBtn = slide.querySelector('.save-btn');
+saveBtn.onclick = e => {
+  e.stopPropagation();  // カードの flip や share に影響を与えない
+  const couponId = card.dataset.couponId;
+  toggleSaveCoupon(couponId);
+};
 
     // 카드 플립 (단, 뒤집기 해제 버튼/저장/공유는 제외)
     cardElem.onclick = e => {
