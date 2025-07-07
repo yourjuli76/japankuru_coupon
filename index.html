@@ -273,6 +273,13 @@ body.dark-mode .coupon-card-scene { border: 1.5px solid #364366; }
   box-shadow: 0 14px 36px rgba(40,60,120,0.18), 0 2px 12px rgba(40,60,120,0.10);
   transform: translateY(-2px) scale(1.025);
 }
+.coupon-card {
+  transform-style: preserve-3d;
+}
+.card-face--front,
+.card-face--back {
+  backface-visibility: hidden;
+}
 .coupon-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -472,9 +479,6 @@ body.dark-mode .filter-btn.active { color: #fff; background: var(--primary-color
   touch-action: pan-y;
 }
 .swiper-wrapper {
-  display: flex !important;
-  justify-content: center !important;
-  gap: 20px;  /* 카드 간 간격 조정 */
   padding: 0 !important;
 }
 .swiper-slide {
@@ -1053,40 +1057,35 @@ body.dark-mode .back-map-wrapper iframe { filter: invert(1) hue-rotate(200deg) b
       }
     };
   
-    // --- Swiper 초기화 ---
 // --- Swiper 초기화 ---
 function initSwiper() {
-  state.swiper = new Swiper(dom.swiper, {
-    // 모바일 기본: 슬라이드 1개씩
-    slidesPerView: 1,
-    spaceBetween: 20,
-    grabCursor: true,
-    // 중앙 정렬은 원하시면 켜고 끌 수 있습니다
-    centeredSlides: false,
-    watchOverflow: true,
-
-    // 페이징 / 내비게이션
-    pagination: { el: '.swiper-pagination', clickable: true },
-    navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
-
-    // 화면 크기에 따른 분기
-    breakpoints: {
-      // 화면 너비 768px 이상: 한 줄에 2개
-      768: {
-        slidesPerView: 2,
-        spaceBetween: 20,
-        centeredSlides: true,
-      },
-      // 화면 너비 1024px 이상: 한 줄에 3개
-      1024: {
-        slidesPerView: 3,
-        spaceBetween: 24,
-        centeredSlides: true,
-      }
+// initSwiper() 안에서
+state.swiper = new Swiper(dom.swiper, {
+  // ① centeredSlides: true 유지
+  centeredSlides: true,
+  // ② slidesPerView: 기본값 1
+  slidesPerView: 1,
+  spaceBetween: 20,
+  grabCursor: true,
+  watchOverflow: true,
+  pagination: { el: '.swiper-pagination', clickable: true },
+  navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+  breakpoints: {
+    // 모바일/태블릿에서도 한 장씩
+    768: {
+      slidesPerView: 1,
+      spaceBetween: 20,
+      centeredSlides: true,
+    },
+    // 데스크탑은 한 번에 세 장씩
+    1024: {
+      slidesPerView: 3,
+      spaceBetween: 24,
+      centeredSlides: true,
     }
-  });
+  }
+});
 }
-
 
   
     // --- 지도 초기화 ---
@@ -1119,34 +1118,33 @@ function initSwiper() {
   
     // --- 카드 세팅(저장, 플립, 공유, 아이콘) ---
     function setupCards() {
-      dom.allSlides.forEach(slide => {
-        const card = slide.querySelector('.coupon-card-scene');
-        const saveBtn = slide.querySelector('.save-btn');
-        const cardElem = slide.querySelector('.coupon-card');
-        const couponId = card.dataset.couponId;
-  
-        // 저장 버튼
-        saveBtn.onclick = e => {
-          e.stopPropagation();
-          toggleSaveCoupon(couponId);
-        };
-  
-        // 카드 플립
-        cardElem.onclick = e => {
-          if (!e.target.classList.contains('save-btn') && !e.target.closest('.save-btn')) {
-            card.classList.toggle('is-flipped');
-          }
-        };
-  
-        // 뒷면 '표면에' 버튼
-        const flipBackBtn = slide.querySelector('.flip-back-btn');
-        if (flipBackBtn) {
-          flipBackBtn.innerHTML = '<i class="fa-solid fa-arrow-left"></i> 表面へ';
-          flipBackBtn.onclick = e => {
-            e.stopPropagation();
-            card.classList.remove('is-flipped');
-          }
-        }
+  dom.allSlides.forEach(slide => {
+    const card = slide.querySelector('.coupon-card-scene');
+    const cardElem = slide.querySelector('.coupon-card');
+    // …saveBtn, shareBtn 설정 생략…
+
+    // 카드 플립 (단, 뒤집기 해제 버튼/저장/공유는 제외)
+    cardElem.onclick = e => {
+      // 1) 저장 버튼, 2) 표면으로 버튼, 3) 공유 버튼 클릭 시엔 무시
+      if (
+           e.target.closest('.save-btn')   ||
+           e.target.closest('.flip-back-btn') ||
+           e.target.closest('.share-btn')
+         ) {
+        return;
+      }
+      card.classList.toggle('is-flipped');
+    };
+
+    // 뒷면 '표면으로' 버튼
+    const flipBackBtn = slide.querySelector('.flip-back-btn');
+    if (flipBackBtn) {
+      flipBackBtn.innerHTML = '<i class="fa-solid fa-arrow-left"></i> 表面へ';
+      flipBackBtn.onclick = e => {
+        e.stopPropagation();
+        card.classList.remove('is-flipped');
+      }
+    }
   
         // 공유 버튼
         const shareBtn = slide.querySelector('.share-btn');
@@ -1306,82 +1304,67 @@ function updateFilterCounts() {
     }
   
 // --- 카드 목록/지도 필터링 & 정렬 ---
-// --- 카드 목록/지도 필터링 & 정렬 ---
-function updateView() {
-  // 0) masterSlides는 init()에서 한 번만 저장된, 초기 모든 .swiper-slide 요소 배열입니다.
-  const allSlides = state.masterSlides;
+  function updateView() {
+  const allSlides  = state.masterSlides;
+  const activeBtn  = dom.controlsContainer.querySelector('.filter-btn.active');
+  if (!activeBtn) return;
+  const filter     = activeBtn.dataset.filter;
+  const term       = dom.searchInput.value.trim().toLowerCase();
+  const sortBy     = dom.sortSelect.value;
 
-  // 1) 현재 필터/검색어/정렬값 읽기
-  const activeFilterBtn = dom.controlsContainer.querySelector('.filter-btn.active');
-  if (!activeFilterBtn) return;
-  const activeFilter = activeFilterBtn.dataset.filter;
-  const searchTerm   = dom.searchInput.value.trim().toLowerCase();
-  const sortValue    = dom.sortSelect.value;
-
-  // 2) 필터링
+  // 1) 필터링
   let filtered = allSlides.filter(slide => {
-    const card = slide.querySelector('.coupon-card-scene');
-    // 검색어
-    if (searchTerm && !card.textContent.toLowerCase().includes(searchTerm)) return false;
-    // 저장 필터
-    if (activeFilter === 'saved' && !state.savedCouponIds.includes(card.dataset.couponId)) return false;
-    // 카테고리 필터
-    if (activeFilter !== 'all' && activeFilter !== 'saved' && activeFilter !== 'nearby') {
-      if (card.dataset.category !== activeFilter) return false;
-    }
+    const c = slide.querySelector('.coupon-card-scene');
+    if (term && !c.textContent.toLowerCase().includes(term)) return false;
+    if (filter === 'saved'   && !state.savedCouponIds.includes(c.dataset.couponId)) return false;
+    if (filter !== 'all' &&
+        filter !== 'saved' &&
+        filter !== 'nearby' &&
+        c.dataset.category !== filter) return false;
     return true;
   });
 
-  // 3) 정렬
-  if (sortValue === 'expiry') {
-    filtered.sort((a,b)=>
+  // 2) 정렬
+  if (sortBy === 'expiry') {
+    filtered.sort((a,b) =>
       a.querySelector('.coupon-card-scene').dataset.expiry
         .localeCompare(b.querySelector('.coupon-card-scene').dataset.expiry)
     );
-  } else if (sortValue === 'discount') {
-    const num = el=>{
-      const m=el.querySelector('.card-offer').textContent.match(/(\d+)/);
-      return m ? +m[1] : 0;
-    };
-    filtered.sort((a,b)=> num(b) - num(a));
-  } else if (activeFilter === 'nearby') {
+  } else if (sortBy === 'discount') {
+    const num = el => +(el.querySelector('.card-offer').textContent.match(/(\d+)/)||[0,0])[1];
+    filtered.sort((a,b)=> num(b)-num(a));
+  } else if (filter === 'nearby') {
     filtered.sort((a,b)=>{
-      const da=+a.querySelector('.coupon-card-scene').dataset.distance||0;
-      const db=+b.querySelector('.coupon-card-scene').dataset.distance||0;
+      const da = +a.querySelector('.coupon-card-scene').dataset.distance||0;
+      const db = +b.querySelector('.coupon-card-scene').dataset.distance||0;
       return da - db;
     });
   } else {
     filtered.sort((a,b)=> a.dataset.originalOrder - b.dataset.originalOrder);
   }
 
-  // 4) Swiper 슬라이드 전부 제거
+  // 3) Swiper 교체
   state.swiper.removeAllSlides();
-
-  // 5) 필터 후 남은 슬라이드만 Swiper에 추가
   filtered.forEach(slide => {
-    // 슬라이드 요소 자체를 재사용
     state.swiper.appendSlide(slide);
   });
-
-  // 6) Swiper 업데이트 & 첫 슬라이드로 이동
   state.swiper.update();
-  if (filtered.length) state.swiper.slideTo(0, 0);
+  if (filtered.length) {
+    state.swiper.slideTo(0, 0);
+  }
 
-  // 7) 빈 상태 표시 토글
+  // 4) 빈 상태, 카운트, 지도 마커
   dom.emptyState.classList.toggle('show', filtered.length === 0);
-
-  // 8) 필터 버튼 옆 개수 갱신 (masterSlides 기준)
   updateFilterCounts();
-
-  // 9) 지도 모드일 때 마커 갱신
   if (state.currentView === 'map') {
     const cards = filtered.map(s => s.querySelector('.coupon-card-scene'));
     updateMapMarkers(cards);
   }
+  // 5) 카드 내 버튼(저장/플립/공유) 이벤트 재설정
+  setupCards();
 }
 
 
-  
     // --- 기타 유틸 ---
     function showToast(message) {
       let toast = document.getElementById('toast');
@@ -1460,7 +1443,6 @@ dom.controlsContainer.addEventListener('click', e => {
       if (localStorage.getItem('japankuruTheme') === 'dark') document.body.classList.add('dark-mode');
       initSwiper();
       initMap();
-      setupCards();
       updateFilterCounts();
       bindEventListeners();
       updateView();
