@@ -469,24 +469,40 @@ body.dark-mode .filter-btn.active { color: #fff; background: var(--primary-color
    Swiper を中央寄せにする最小限の CSS
 ==================================== */
 .swiper {
-  /* 親要素は幅いっぱい */
   width: 100%;
-  overflow: visible; /* overflow: hidden だと transform の一部が隠れてしまう */
+  /* 핵심 변경사항: 컨테이너 외부 콘텐츠도 보이도록 설정 */
+  overflow: visible !important;
+  padding-left: 20px;  /* 왼쪽에 여백 추가 */
+  padding-right: 20px; /* 오른쪽에 여백 추가 */
+  /* 페이지네이션을 위한 기존 하단 여백 유지 */
+  padding-bottom: 80px !important;
 }
 
-/* スライド群を flex で中央寄せ */
+/* 내부 wrapper도 콘텐츠를 잘라내지 않도록 설정 */
 .swiper-wrapper {
+  overflow: visible !important;
   display: flex !important;
   justify-content: center !important;
 }
 
-/* 各スライドは固定幅＋flex-shrink:0 で揃える */
+/* 개별 슬라이드와 카드 자체도 콘텐츠를 자르지 않도록 설정 */
 .swiper-slide {
   flex-shrink: 0;
-  width: 300px; /* あなたのレイアウトに合わせて */
-  margin: 0 12px; /* 任意：前後にちょっと隙間 */
+  width: 300px;
+  margin: 0 12px;
+  overflow: visible !important;
 }
 
+.coupon-card-scene {
+    width: 320px;
+    max-width: 100vw;
+    aspect-ratio: 2/3.7;
+    perspective: 1000px;
+    border-radius: 20px;
+    border: 1.5px solid #e5eaf2;
+    /* 카드가 뒤집힐 때 잘리지 않도록 설정 */
+    overflow: visible;
+}
 
 body {
   margin-bottom: 100px;
@@ -1086,31 +1102,29 @@ body.dark-mode .back-map-wrapper iframe { filter: invert(1) hue-rotate(200deg) b
     };
   
 // --- Swiper 초기화 ---
+// --- Swiper 초기화 ---
 function initSwiper() {
   state.swiper = new Swiper(dom.swiper, {
-    // ① 常に中央寄せ
-    centeredSlides: true,
-    // ② スライド数不足時も中央寄せ
-    centerInsufficientSlides: true,
-    // ③ スライド群の両端に余白を作って中央寄せ
-    centeredSlidesBounds: true,
-
-    slidesPerView: 1,
-    spaceBetween: 20,
+    // --- 모바일 기본 설정 (767px 이하) ---
+    slidesPerView: 1,      // 화면에는 항상 슬라이드 1개만 보이도록 설정
+    spaceBetween: 20,      // 슬라이드 간 간격
+    centeredSlides: true,  // 현재 슬라이드를 항상 중앙에 위치
     grabCursor: true,
     watchOverflow: true,
     pagination: { el: '.swiper-pagination', clickable: true },
     navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+
+    // --- 화면 크기별 설정 (breakpoints) ---
     breakpoints: {
+      // 768px 이상일 때 (태블릿)
       768: {
-        slidesPerView: 1,
-        spaceBetween: 20,
+        slidesPerView: 2, // 슬라이드 2개를 보이도록 설정
+        spaceBetween: 24,
         centeredSlides: true,
-        centerInsufficientSlides: true,
-        centeredSlidesBounds: true,
       },
+      // 1024px 이상일 때 (데스크탑)
       1024: {
-        slidesPerView: 3,
+        slidesPerView: 3, // 슬라이드 3개를 보이도록 설정
         spaceBetween: 24,
         centeredSlides: true,
         centerInsufficientSlides: true,
