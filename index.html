@@ -469,64 +469,68 @@ body.dark-mode .filter-btn.active { color: #fff; background: var(--primary-color
    Swiper を中央寄せにする最小限の CSS
 ==================================== */
 
-/* Swiper 컨테이너 */
+/* =================================================
+   SWIPER 레이아웃 CSS (진짜 최종 해결 버전)
+================================================= */
+
 .swiper {
   width: 100%;
   height: auto;
-  overflow: hidden; /* 모바일에서는 잘림 */
   padding-top: 20px;
   padding-bottom: 50px;
 }
 
-/* 768px 이상 화면에서는 잘리지 않도록 visible 처리 */
+/* --- 모바일 뷰 (max-width: 767px) --- */
+@media (max-width: 767px) {
+  .swiper {
+    overflow: hidden;
+  }
+  /*
+    .swiper-wrapper에 대한 flex 정렬 규칙을 모두 제거합니다.
+    이제 Swiper의 JS 옵션이 모든 레이아웃을 제어합니다.
+  */
+}
+
+/* --- 태블릿 / PC 뷰 (min-width: 768px) --- */
 @media (min-width: 768px) {
   .swiper {
     overflow: visible;
   }
+  .swiper-wrapper {
+    /* PC에서는 슬라이드 그룹 전체를 중앙에 배치 */
+    justify-content: center;
+  }
 }
 
-/* Swiper 슬라이드 아이템 */
 .swiper-slide {
-  width: auto; /* Swiper가 너비를 유연하게 계산하도록 함 */
-  height: auto;
+  width: auto; /* 부모인 슬라이드는 내용물 크기에 맞춤 */
   flex-shrink: 0;
+  height: auto;
 }
 
-/* Swiper 콘텐츠 정렬을 위한 핵심 스타일 */
-.swiper-wrapper {
-  /* 슬라이드 그룹 전체를 중앙에 배치합니다 */
-  justify-content: center;
+/* 기본 카드 크기 */
+.coupon-card-scene {
+  width: 320px; /* 카드 자체에 고정 너비를 부여 */
 }
 
-/* 768px 이상 ~ 1199px 이하 (태블릿 및 소형 PC) */
+/* 반응형 카드 크기 조정 */
 @media (min-width: 768px) and (max-width: 1199px) {
-  .coupon-card-scene {
-    /* 이 구간에서 3개의 카드가 잘리지 않고 들어가도록 너비를 약간 줄입니다. */
+  .coupon-card-scene { /* 카드 자체의 너비를 조정 */
     width: 270px;
   }
 }
 
-/* Swiper 버튼/페이지네이션 스타일은 그대로 유지 */
-.swiper-button-prev,
-.swiper-button-next {
-    color: #007bff;
+/* PC에서 wrapper 정렬 */
+@media (min-width: 768px) {
+    .swiper-wrapper {
+        justify-content: center;
+    }
 }
 
-.swiper-pagination-bullet-active {
-    background: #007bff;
+/* 필터링 시 보이지 않을 슬라이드를 위한 클래스 */
+.swiper-slide-hidden {
+  display: none;
 }
-
-.coupon-card-scene {
-    width: 320px;
-    max-width: 100vw;
-    aspect-ratio: 2/3.7;
-    perspective: 1000px;
-    border-radius: 20px;
-    border: 1.5px solid #e5eaf2;
-    /* 카드가 뒤집힐 때 잘리지 않도록 설정 */
-    overflow: visible;
-}
-
 body {
   margin-bottom: 100px;
 }
@@ -1137,15 +1141,11 @@ body.dark-mode .back-map-wrapper iframe { filter: invert(1) hue-rotate(200deg) b
   
 // --- Swiper 초기화 ---
 function initSwiper() {
-  if (state.swiper) {
-    state.swiper.destroy(true, true);
-  }
-
+  // Swiper 초기화 로직
   state.swiper = new Swiper(dom.swiper, {
-    // --- 모바일 기본 설정 ---
-    slidesPerView: 1,
-    spaceBetween: 16,
-    centeredSlides: true,
+    observer: true,
+    observeParents: true,
+    loop: false,
     grabCursor: true,
     pagination: {
       el: '.swiper-pagination',
@@ -1155,27 +1155,26 @@ function initSwiper() {
       nextEl: '.swiper-button-next',
       prevEl: '.swiper-button-prev'
     },
-    observer: true,
-    observeParents: true,
+    // 모바일 기본 설정
+    slidesPerView: 1,
+    centeredSlides: true, // Swiper의 자체 중앙 정렬 기능 사용
+    spaceBetween: 16,
 
-    // --- 화면 크기별 반응형 설정 (Breakpoints) ---
+    // 화면 크기별 반응형 설정
     breakpoints: {
-      // 768px 이상부터 (태블릿 및 소형 PC)
       768: {
         slidesPerView: 3,
-        spaceBetween: 16, // 카드 3개가 들어갈 수 있도록 간격을 약간 좁힘
-        centeredSlides: false, // 3개를 채울 것이므로 중앙정렬 비활성화
+        spaceBetween: 16,
+        centeredSlides: false,
       },
-      // 1200px 이상부터 (대형 PC)
       1200: {
         slidesPerView: 3,
-        spaceBetween: 24, // 화면이 넓으니 간격을 여유롭게
+        spaceBetween: 24,
         centeredSlides: false,
       }
     }
   });
 }
-
   
     // --- 지도 초기화 ---
     function initMap() {
@@ -1398,62 +1397,77 @@ function updateFilterCounts() {
     }
   
 // --- 카드 목록/지도 필터링 & 정렬 ---
-  function updateView() {
-  const allSlides  = state.masterSlides;
-  const activeBtn  = dom.controlsContainer.querySelector('.filter-btn.active');
+function updateView() {
+  const allSlides = state.masterSlides;
+  const activeBtn = dom.controlsContainer.querySelector('.filter-btn.active');
   if (!activeBtn) return;
-  const filter     = activeBtn.dataset.filter;
-  const term       = dom.searchInput.value.trim().toLowerCase();
-  const sortBy     = dom.sortSelect.value;
 
-  // 1) 필터링
+  const filter = activeBtn.dataset.filter;
+  const term = dom.searchInput.value.trim().toLowerCase();
+  const sortBy = dom.sortSelect.value;
+
+  // 1) 필터링 로직 (기존과 동일)
   let filtered = allSlides.filter(slide => {
     const c = slide.querySelector('.coupon-card-scene');
-    if (term && !c.textContent.toLowerCase().includes(term)) return false;
-    if (filter === 'saved'   && !state.savedCouponIds.includes(c.dataset.couponId)) return false;
-    if (filter !== 'all' &&
-        filter !== 'saved' &&
-        filter !== 'nearby' &&
-        c.dataset.category !== filter) return false;
+    if (!c) return false;
+    const searchableText = (c.textContent || '').toLowerCase();
+    if (term && !searchableText.includes(term)) return false;
+    if (filter === 'saved') {
+      return state.savedCouponIds.includes(c.dataset.couponId);
+    }
+    if (filter !== 'all' && filter !== 'nearby' && c.dataset.category !== filter) {
+      return false;
+    }
     return true;
   });
 
-  // 2) 정렬
-  if (sortBy === 'expiry') {
-    filtered.sort((a,b) =>
-      a.querySelector('.coupon-card-scene').dataset.expiry
-        .localeCompare(b.querySelector('.coupon-card-scene').dataset.expiry)
-    );
+  // 2) 정렬 로직 (기존과 동일)
+  // ... (이전과 동일한 정렬 코드가 여기에 위치합니다) ...
+   if (sortBy === 'expiry') {
+    filtered.sort((a, b) =>
+      a.querySelector('.coupon-card-scene').dataset.expiry
+      .localeCompare(b.querySelector('.coupon-card-scene').dataset.expiry)
+    );
   } else if (sortBy === 'discount') {
-    const num = el => +(el.querySelector('.card-offer').textContent.match(/(\d+)/)||[0,0])[1];
-    filtered.sort((a,b)=> num(b)-num(a));
+    const num = el => +(el.querySelector('.card-offer').textContent.match(/(\d+)/) || [0, 0])[1];
+    filtered.sort((a, b) => num(b) - num(a));
   } else if (filter === 'nearby') {
-    filtered.sort((a,b)=>{
-      const da = +a.querySelector('.coupon-card-scene').dataset.distance||0;
-      const db = +b.querySelector('.coupon-card-scene').dataset.distance||0;
+    filtered.sort((a, b) => {
+      const da = +a.querySelector('.coupon-card-scene').dataset.distance || 0;
+      const db = +b.querySelector('.coupon-card-scene').dataset.distance || 0;
       return da - db;
     });
   } else {
-    filtered.sort((a,b)=> a.dataset.originalOrder - b.dataset.originalOrder);
+    filtered.sort((a, b) => (a.dataset.originalOrder || 0) - (b.dataset.originalOrder || 0));
   }
 
-  // 3) Swiper 교체
-  state.swiper.removeAllSlides();
+
+  // ==========================================================
+  // 3) Swiper 파괴 및 재생성 로직
+  // ==========================================================
+  // 기존 Swiper 인스턴스 완전 파괴
+  if (state.swiper) {
+    state.swiper.destroy(true, true);
+    state.swiper = null;
+  }
+
+  // DOM을 직접 조작: wrapper를 비우고 필터링된 슬라이드만 다시 채워넣기
+  dom.swiperWrapper.innerHTML = '';
   filtered.forEach(slide => {
-    state.swiper.appendSlide(slide);
+    dom.swiperWrapper.appendChild(slide);
   });
-  state.swiper.update();
-  if (filtered.length) {
-    state.swiper.slideTo(0, 0);
-  }
 
-  // 4) 빈 상태, 카운트, 지도 마커
+  // 새로운 DOM 구조 위에서 Swiper를 깨끗하게 다시 초기화
+  initSwiper();
+
+  // 4) 나머지 UI 업데이트
   dom.emptyState.classList.toggle('show', filtered.length === 0);
   updateFilterCounts();
   if (state.currentView === 'map') {
     const cards = filtered.map(s => s.querySelector('.coupon-card-scene'));
     updateMapMarkers(cards);
   }
+
   // 5) 카드 내 버튼(저장/플립/공유) 이벤트 재설정
   setupCards();
 }
