@@ -597,6 +597,22 @@ body.dark-mode .back-map-wrapper iframe { filter: invert(1) hue-rotate(200deg) b
 }
 .toast-notification.show { opacity: 1; transform: translateY(0);}
 
+/* ─────────────────────────────────────────
+   Swiper transform 강제 해제 & 중앙정렬 유지
+   ───────────────────────────────────────── */
+.swiper-wrapper {
+  display: flex !important;
+  justify-content: center !important;
+  transform: none !important;       /* 인라인 translate3d 무시 */
+  margin: 0 auto !important;        /* 여유가 있으면 양쪽 margin 자동 */
+}
+
+.swiper, 
+.swiper-container {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+    
   </style>
 </head>
 <body>
