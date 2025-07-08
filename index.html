@@ -12,642 +12,768 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"/>
-  <style>
-    /* --- 기본 & 테마 설정 --- */
-    :root {
-  --primary-color: #007bff;
-  --danger-color: #d90429;
-  --save-color: #ffc107;
-  --dark-blue: #1a2c4e;
-  --card-bg: #fff;
-  --light-gray: #f0f2f5;
-  --border-color: #d1d9e6;
-  --tag-bg: #e7f1ff;
-  --tag-color: #004aad;
-  --tag-border: #b3d4ff;
-  --subtle-text: #666;
-  --flip-btn-bg: #e9ecef;
-  --flip-btn-color: #555;
-}
-body.dark-mode {
-  --light-gray: #121212;
-  --card-bg: #1e1e1e;
-  --dark-blue: #2c3e50;
-  --border-color: #444;
-  --tag-bg: #2a3a5e;
-  --tag-color: #a7c5ff;
-  --tag-border: #3f517a;
-  --subtle-text: #aaa;
-  --flip-btn-bg: #343a40;
-  --flip-btn-color: #f1f3f5;
-}
+<style>
+  /* --- 기본 & 테마 설정 --- */
+  :root {
+    --primary-color: #007bff;
+    --danger-color: #d90429;
+    --save-color: #ffc107;
+    --dark-blue: #1a2c4e;
+    --card-bg: #fff;
+    --light-gray: #f0f2f5;
+    --border-color: #d1d9e6;
+    --tag-bg: #e7f1ff;
+    --tag-color: #004aad;
+    --tag-border: #d1d4ff;
+    --subtle-text: #666;
+    --flip-btn-bg: #e9ecef;
+    --flip-btn-color: #555;
+  }
+  body.dark-mode {
+    --light-gray: #121212;
+    --card-bg: #1e1e1e;
+    --dark-blue: #2c3e50;
+    --border-color: #444;
+    --tag-bg: #2a3a5e;
+    --tag-color: #a7c5ff;
+    --tag-border: #3f517a;
+    --subtle-text: #aaa;
+    --flip-btn-bg: #343a40;
+    --flip-btn-color: #f1f3f5;
+  }
 
-/* --------------------------------------------------
-   RESET & BASE TYPOGRAPHY
--------------------------------------------------- */
-body {
-  background: #f5f6fa;
-  color: #222;
-  font-family: 'SF Pro Display', 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif;
-  letter-spacing: 0.02em;
-  font-size: 17px;
-}
-a { color: inherit; text-decoration: none; }
-a:hover { text-decoration: underline; }
+  /* --------------------------------------------------
+     RESET & BASE TYPOGRAPHY
+  -------------------------------------------------- */
+  body {
+    background: #f5f6fa;
+    color: #222;
+    font-family: 'SF Pro Display','Noto Sans JP','Helvetica Neue',Arial,sans-serif;
+    letter-spacing: 0.02em;
+    font-size: 17px;
+  }
+  a { color: inherit; text-decoration: none; }
+  a:hover { text-decoration: underline; }
 
-/* --------------------------------------------------
-   HEADER / HERO SECTION
--------------------------------------------------- */
-.site-header-hero {
-  position: relative;
-  background-image: linear-gradient(rgba(26,44,78,0.68), rgba(26,44,78,0.75)), url('https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&w=2070&q=80');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
+  /* --------------------------------------------------
+     HEADER / HERO SECTION
+  -------------------------------------------------- */
+  .site-header-hero {
+    position: relative;
+    background-image:
+      linear-gradient(rgba(26,44,78,0.68),rgba(26,44,78,0.75)),
+      url('https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&w=2070&q=80');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: #fff;
+    text-align: center;
+    padding: 28px 10px 96px;
+    box-shadow: 0 2px 28px rgba(30,50,90,0.04);
+    overflow: hidden;
+  }
+  .nav-row, .nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+  }
+  .nav-logo-link img { height: 35px; filter: brightness(0) invert(1); }
+  .theme-switcher { display: flex; align-items: center; gap: 8px; color: white; }
+  .theme-toggle {
+    width: 40px; height: 20px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 10px; position: relative; cursor: pointer;
+  }
+  .theme-toggle::before {
+    content: '';
+    position: absolute;
+    width: 16px; height: 16px;
+    background: white; border-radius: 50%;
+    top: 2px; left: 2px; transition: transform .3s;
+  }
+  body.dark-mode .theme-toggle::before { transform: translateX(20px); }
+
+  .hero-content {
+    margin-top: 60px;
+    background: rgba(255,255,255,0.11);
+    border-radius: 32px;
+    padding: 34px;
+    box-shadow: 0 8px 28px rgba(0,20,60,0.10);
+    display: inline-block;
+    position: relative; z-index: 2;
+    animation: fadeInUp .9s cubic-bezier(.22,.68,.38,1.08);
+  }
+  .hero-content h1 {
+    font-family: 'SF Pro Display','Noto Serif JP',serif;
+    font-size: 2.9em; font-weight: 900;
+    margin: 24px 0 10px;
+    letter-spacing: .05em; line-height: 1.12; color: #fff;
+    text-shadow: 0 3px 18px rgba(24,24,48,0.24);
+    animation: heroPop .8s .13s cubic-bezier(.27,.95,.51,1.3) backwards;
+  }
+  .hero-content b { color: #ffc107; }
+  .hero-sub { font-size: 1.15em; margin-top: 10px; opacity: .98; }
+  .hero-sub .sparkle { animation: sparkleAnim 2.3s infinite; display: inline-block; }
+
+  @keyframes sparkleAnim{0%{opacity:.2}48%{opacity:1}100%{opacity:.2}}
+  @keyframes heroPop{from{opacity:.3;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+  @keyframes fadeInUp{0%{opacity:0;transform:translateY(22px)}100%{opacity:1;transform:translateY(0)}}
+
+  .hero-content .hero-coupon-badge {
+    display: inline-block;
+    background: linear-gradient(90deg,#ffc107 0%,#ff5858 100%);
+    color: #fff; border-radius: 16px;
+    padding: 5px 22px; margin-bottom: 8px;
+    font-size: 19px; font-weight: 800; letter-spacing: .02em;
+    box-shadow: 0 2px 12px rgba(255,96,40,0.15);
+    transform: rotate(-4deg); margin-right: 12px;
+    animation: badgeSlide .7s .15s cubic-bezier(.5,1.7,.7,1.1) backwards;
+  }
+  @keyframes badgeSlide{from{transform:translateX(-120px) scale(.98) rotate(-7deg);opacity:0}to{transform:translateX(0) scale(1) rotate(-4deg);opacity:1}}
+
+  .hero-search-form {
+    margin-top: 25px;
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .hero-search-form input {
+    width: 100%;
+    padding: 20px 60px 20px 25px;
+    font-size: 18px;
+    border-radius: 50px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.95);
+    color: #333;
+    box-shadow: 0 1.5px 10px rgba(20,50,100,0.10);
+    box-sizing: border-box;
+  }
+  .hero-search-form .search-icon {
+    position: absolute;
+    right: 25px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px; color: #888;
+  }
+
+  /* --------------------------------------------------
+     HINT TEXT
+  -------------------------------------------------- */
+  .interaction-notice {
+    text-align: center;
+    margin: 20px auto;
+    padding: 12px 20px;
+    max-width: 600px;
+    background: var(--tag-bg);
+    color: var(--dark-blue);
+    border-radius: 8px;
+    font-size: 1.05em;
+    font-weight: 500;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  .interaction-notice b { color: var(--primary-color); }
+
+  /* --------------------------------------------------
+     PICKUP SPECIAL COUPON AREA
+  -------------------------------------------------- */
+  .pickup-special-section {
+    padding: 60px 20px; max-width: 1200px; margin: 0 auto;
+  }
+  .pickup-title-wrapper { text-align: center; margin-bottom: 40px; }
+  .pickup-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 2.5em; font-weight: 900; color: var(--dark-blue);
+    margin: 0 0 10px; letter-spacing: .02em;
+    position: relative; padding-bottom: 20px;
+  }
+  .pickup-title::after {
+    content: '';
+    position: absolute; left: 50%; bottom: 0;
+    transform: translateX(-50%);
+    width: 70px; height: 4px;
+    background: linear-gradient(90deg,#ffc107,#ff8c2f);
+    border-radius: 2px;
+  }
+  body.dark-mode .pickup-title { color: #fff; }
+  .pickup-subtitle {
+    font-size: 1.1em; color: var(--subtle-text);
+    max-width: 600px; margin: 0 auto;
+  }
+  .pickup-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 25px;
+  }
+  .pickup-card {
+    position: relative; border-radius: 20px; overflow: hidden;
+    color: #fff; box-shadow: 0 8px 28px rgba(30,50,90,0.18);
+    transition: transform .3s cubic-bezier(.22,.68,.38,1.08), box-shadow .3s;
+    cursor: pointer;
+  }
+  .pickup-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 14px 36px rgba(40,60,120,0.22);
+  }
+  .pickup-card img {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform .4s ease;
+  }
+  .pickup-card:hover img { transform: scale(1.05); }
+  .pickup-overlay {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(180deg,rgba(0,0,0,0)20%,rgba(0,0,0,0.2)50%,rgba(0,0,0,0.8)100%);
+    z-index: 1;
+  }
+  .pickup-card:hover .pickup-overlay {
+    background: linear-gradient(180deg,rgba(0,0,0,0.15)0%,rgba(0,0,0,0.5)40%,rgba(0,0,0,0.9)100%);
+  }
+  .pickup-content {
+    position: relative; z-index: 2;
+    padding: 25px;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    height: 100%; box-sizing: border-box;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+  .pickup-badge {
+    display: inline-block; align-self: flex-start;
+    padding: 6px 14px; border-radius: 14px;
+    font-size: 13px; font-weight: 700; margin-bottom: 12px;
+    background: rgba(255,255,255,0.2); backdrop-filter: blur(5px);
+    color: #0066ff; border: 1.2px solid #d0e2ff;
+  }
+  .pickup-badge.best-pick { background: linear-gradient(90deg,#ffc107,#ff8c2f); color: #fff; }
+  .pickup-badge.hot-pick  { background: linear-gradient(90deg,#ff2f63,#ff8c2f); color: #fff; }
+  .pickup-card h3, .pickup-card h4 {
+    margin: 0 0 5px; font-weight: 800; line-height: 1.3;
+  }
+  .main-pick .pickup-content h3 { font-size: 2em; }
+  .sub-pick  .pickup-content h4 { font-size: 1.4em; }
+  .pickup-offer {
+    margin: 0 0 15px; font-size: 1.1em; opacity: .9;
+  }
+  .pickup-btn {
+    color: #fff; text-decoration: none; font-weight: 700;
+    align-self: flex-start; background: rgba(255,255,255,0.25);
+    padding: 8px 18px; border-radius: 20px; transition: background .2s;
+  }
+  .pickup-btn:hover { background: rgba(255,255,255,0.4); }
+  .main-pick { grid-column: 1/2; grid-row: 1/3; min-height: 500px; }
+  .sub-pick  { grid-column: 2/3; }
+  @media (max-width: 900px) {
+    .pickup-grid { grid-template-columns: 1fr; }
+    .main-pick, .sub-pick { grid-column: 1/-1; }
+    .main-pick { min-height: 400px; }
+    .sub-pick  { min-height: 250px; }
+  }
+  @media (max-width: 600px) {
+    .pickup-title { font-size: 2em; }
+  }
+
+  /* --------------------------------------------------
+     카드/쿠폰 공통 (리스트/플립)
+  -------------------------------------------------- */
+  .coupon-card-scene {
+    width: 320px; max-width: 100vw;
+    aspect-ratio: 2/3.7; perspective: 1000px;
+    border-radius: 20px; border: 1.5px solid #e5eaf2;
+    position: relative;
+  }
+  body.dark-mode .coupon-card-scene { border-color: #364366; }
+
+  .coupon-card {
+    width: 100%; height: 100%; position: relative;
+    transition: transform .8s; transform-style: preserve-3d;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(30,40,90,0.14),0 1.5px 8px rgba(30,40,90,0.07);
+  }
+  .coupon-card:hover {
+    box-shadow: 0 14px 36px rgba(40,60,120,0.18),0 2px 12px rgba(40,60,120,0.10);
+    transform: translateY(-2px) scale(1.025);
+  }
+  .coupon-card-scene.is-flipped .coupon-card {
+    transform: rotateY(180deg);
+    box-shadow: 0 14px 48px rgba(60,100,220,0.16);
+  }
+  .coupon-card-scene.is-expired {
+    opacity: .6; filter: grayscale(80%);
+  }
+
+  .card-face--front, .card-face--back {
+    backface-visibility: hidden;
+  }
+  .card-face {
+    position: absolute; width: 100%; height: 100%;
+    background: linear-gradient(135deg,var(--card-bg)85%,#f5f7fa 100%);
+    border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    display: flex; flex-direction: column; overflow: hidden;
+    transition: box-shadow .5s cubic-bezier(.22,.61,.36,1);
+  }
+  body.dark-mode .card-face {
+    background: linear-gradient(135deg,var(--card-bg)85%,#22262d 100%);
+  }
+  .card-face--back {
+    transform: rotateY(180deg);
+    padding: 20px; justify-content: space-between;
+  }
+  .card-face--front:hover .card-image-wrapper img { transform: scale(1.05); }
+
+  .card-image-wrapper {
+    width: 100%; aspect-ratio: 4/3;
+    position: relative; overflow: hidden; background: #eee;
+    flex-shrink: 0;
+  }
+  .card-image-wrapper img {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform .4s ease;
+  }
+  .card-image-wrapper::after {
+    content: "";
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(120deg,rgba(0,0,0,0.12)20%,rgba(20,100,220,0.13)100%);
+    opacity: .72; pointer-events: none; transition: opacity .3s;
+  }
+  .card-face--front:hover .card-image-wrapper::after { opacity: .32; }
+
+  .card-content {
+    padding: 20px; text-align: center;
+    flex-grow: 1; display: flex; flex-direction: column;
+  }
+  .card-store-name { font-size: 20px; font-weight: bold; margin: 0 0 10px; }
+  .card-offer      { font-size: 32px; font-weight: 800; color: var(--danger-color); margin: 0 0 15px; }
+  .card-description{ font-size: 15px; color: var(--subtle-text); margin: 0 0 15px; flex-grow: 1; }
+  .card-tags       { margin-bottom:15px; display:flex; flex-wrap:wrap; justify-content:center; gap:8px; }
+  .tag {
+    background: var(--tag-bg); color: var(--tag-color);
+    border: 1px solid var(--tag-border); font-size:13px;
+    font-weight:600; padding:4px 10px; border-radius:12px;
+  }
+
+  .expiring-badge {
+    position:absolute; top:15px; right:-15px;
+    transform: rotate(45deg);
+    background: linear-gradient(90deg,#ff2f63,#ff8c2f);
+    color: #fff; padding:5px 30px; font-size:14px; font-weight:bold;
+    z-index: 6; opacity:0; pointer-events:none; transition:opacity .3s;
+    box-shadow:0 2px 8px rgba(255,30,70,0.14);
+    animation: badgeShake .6s infinite alternate;
+  }
+  .coupon-card-scene.is-expiring .expiring-badge { opacity:1; }
+  @keyframes badgeShake{0%{transform:rotate(42deg) scale(1)}70%{transform:rotate(48deg) scale(1.08)}100%{transform:rotate(45deg) scale(1)}}
+
+  .card-expiry { font-size:14px; font-weight:600; color: var(--subtle-text); margin-top:10px; }
+
+  .card-cta-button {
+    border-radius:18px;
+    background: linear-gradient(90deg,#278cff 0%,#004aad 100%);
+    box-shadow:0 2px 6px rgba(40,80,220,0.12);
+    font-size:20px; font-weight:900; padding:17px 0;
+    letter-spacing:.01em; display:flex; align-items:center;
+    justify-content:center; gap:10px; color:#fff; text-decoration:none;
+    margin-top:auto; transition:background .18s;
+  }
+  .card-cta-button:hover {
+    background: linear-gradient(90deg,#185abc 0%,#278cff 100%);
+    opacity:.93;
+  }
+
+  /* 카드 상단 좌측 아이콘 (z-index 상향) */
+  .card-category-icon {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.4);
   color: #fff;
-  text-align: center;
-  padding: 28px 10px 96px 10px;
-  box-shadow: 0 2px 28px 0 rgba(30,50,90,0.04);
-  overflow: hidden;
-}
-.nav-row, .nav-container {
-  max-width: 1200px; margin: 0 auto; display: flex;
-  justify-content: space-between; align-items: center; position: relative; z-index: 2;
-}
-.nav-logo-link img { height: 35px; display: block; filter: brightness(0) invert(1);}
-.theme-switcher { display: flex; align-items: center; gap: 8px; color: white;}
-.theme-toggle { width: 40px; height: 20px; background:rgba(255,255,255,0.4); border-radius: 10px; position: relative; cursor:pointer;}
-.theme-toggle::before { content: ''; position: absolute; width: 16px; height: 16px; background: white; border-radius: 50%; top:2px; left:2px; transition:transform 0.3s;}
-body.dark-mode .theme-toggle::before { transform: translateX(20px);}
-.hero-content {
-  margin-top: 60px;
-  background: rgba(255,255,255,0.11);
-  border-radius: 32px;
-  padding: 34px 34px 30px 34px;
-  box-shadow: 0 8px 28px rgba(0,20,60,0.10);
-  display: inline-block;
-  position: relative;
-  z-index: 2;
-  animation: fadeInUp .9s cubic-bezier(.22,.68,.38,1.08);
-}
-.hero-content h1 {
-  font-family: 'SF Pro Display', 'Noto Serif JP', serif;
-  font-size: 2.9em; font-weight: 900; margin: 24px 0 10px 0;
-  letter-spacing: 0.05em; line-height: 1.12; color: #fff;
-  text-shadow: 0 3px 18px rgba(24, 24, 48, 0.24);
-  animation: heroPop .8s .13s cubic-bezier(.27,.95,.51,1.3) backwards;
-}
-.hero-content b { color: #ffc107; }
-.hero-sub { font-size: 1.15em; margin-top: 10px; opacity:.98; }
-.hero-sub .sparkle { animation: sparkleAnim 2.3s infinite; display:inline-block; }
-@keyframes sparkleAnim { 0%{opacity:0.2} 48%{opacity:1;} 100%{opacity:0.2;} }
-@keyframes heroPop {
-  from { opacity:.3; transform: scale(.95);}
-  to { opacity:1; transform: scale(1);}
-}
-@keyframes fadeInUp { 0%{opacity:0;transform:translateY(22px);} 100%{opacity:1;transform:translateY(0);} }
-.hero-content .hero-coupon-badge {
-  display: inline-block;
-  background: linear-gradient(90deg,#ffc107 0%,#ff5858 100%);
-  color: #fff; border-radius: 16px; padding: 5px 22px; margin-bottom: 8px;
-  font-size: 19px; font-weight: 800; letter-spacing: .02em;
-  box-shadow: 0 2px 12px rgba(255,96,40,0.15);
-  transform: rotate(-4deg); margin-right: 12px;
-  animation: badgeSlide .7s .15s cubic-bezier(.5,1.7,.7,1.1) backwards;
-}
-@keyframes badgeSlide {
-  from { transform: translateX(-120px) scale(.98) rotate(-7deg); opacity: 0;}
-  to   { transform: translateX(0) scale(1) rotate(-4deg); opacity: 1;}
-}
-.hero-search-form {
-  margin-top: 25px;
-  position: relative;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.hero-search-form input {
-  width: 100%;
-  padding: 20px 60px 20px 25px;
-  font-size: 18px;
-  border-radius: 50px;
-  border: 1px solid rgba(255,255,255,0.2);
-  background-color: rgba(255, 255, 255, 0.95);
-  color: #333;
-  box-sizing: border-box;
-  box-shadow: 0 1.5px 10px rgba(20,50,100,0.10);
-}
-.hero-search-form .search-icon {
-  position: absolute;
-  right: 25px;
-  top:50%;
-  transform:translateY(-50%);
-  font-size: 20px;
-  color: #888;
-}
-body.dark-mode {
-  --light-gray: #121212;
-  --card-bg: #1e1e1e;
-  --dark-blue: #e1e9f4; /* 더 밝은 색으로 변경하여 대비 확보 */
-  /* ... 나머지 변수 ... */
-}
-/* --------------------------------------------------
-   PICKUP SPECIAL COUPON AREA
--------------------------------------------------- */
-.pickup-special-section {
-  padding: 60px 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-.pickup-title-wrapper {
-  text-align: center;
-  margin-bottom: 40px;
-}
-.pickup-title {
-  font-family: 'Noto Serif JP', serif;
-  font-size: 2.5em;
-  font-weight: 900;
-  color: var(--dark-blue);
-  margin: 0 0 10px 0;
-  letter-spacing: 0.02em;
-  position: relative;
-  padding-bottom: 20px;
-}
-.pickup-title::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  transform: translateX(-50%);
-  width: 70px;
-  height: 4px;
-  background: linear-gradient(90deg, #ffc107, #ff8c2f);
-  border-radius: 2px;
-}
-body.dark-mode .pickup-title { color: #fff; }
-.pickup-subtitle {
-  font-size: 1.1em;
-  color: var(--subtle-text);
-  max-width: 600px;
-  margin: 0 auto;
-}
-.pickup-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  grid-template-rows: auto auto;
-  gap: 25px;
-}
-.pickup-card {
-  position: relative;
-  border-radius: 20px;
-  overflow: hidden;
-  color: #fff;
-  box-shadow: 0 8px 28px rgba(30, 50, 90, 0.18);
-  transition: transform 0.3s cubic-bezier(.22,.68,.38,1.08), box-shadow 0.3s ease;
-  cursor: pointer;
-}
-.pickup-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 14px 36px rgba(40, 60, 120, 0.22);
-}
-.pickup-card img {
-  position: absolute; top: 0; left: 0;
-  width: 100%; height: 100%; object-fit: cover;
-  transition: transform 0.4s ease;
-}
-.pickup-card:hover img { transform: scale(1.05); }
-.pickup-overlay {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: linear-gradient(180deg, rgba(0,0,0,0) 20%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.8) 100%);
-  z-index: 1;
-}
-.pickup-card:hover .pickup-overlay {
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.5) 40%, rgba(0, 0, 0, 0.9) 100%);
-}
-.pickup-content {
-  position: relative; z-index: 2;
-  padding: 25px; display: flex; flex-direction: column;
-  justify-content: flex-end; height: 100%;
-  box-sizing: border-box; text-shadow: 0 2px 8px rgba(0,0,0,0.5);
-}
-.pickup-badge {
-  display: inline-block; align-self: flex-start;
-  padding: 6px 14px; border-radius: 14px;
-  font-size: 13px; font-weight: 700; margin-bottom: 12px;
-  background-color: rgba(255,255,255,0.2); backdrop-filter: blur(5px);
-  background: #f7f8fa;
-  color: #0066ff;
-  border: 1.2px solid #d0e2ff;
-  border-radius: 30px;
-  font-weight: 700;
-}
-.pickup-badge.best-pick { background: linear-gradient(90deg, #ffc107, #ff8c2f); color: #fff; }
-.pickup-badge.hot-pick { background: linear-gradient(90deg,#ff2f63 0%,#ff8c2f 100%); color: #fff; }
-.pickup-card h3, .pickup-card h4 { margin: 0 0 5px 0; font-weight: 800; line-height: 1.3; }
-.main-pick .pickup-content h3 { font-size: 2em; }
-.sub-pick .pickup-content h4 { font-size: 1.4em; }
-.pickup-offer { margin: 0 0 15px 0; font-size: 1.1em; opacity: 0.9; }
-.pickup-btn {
-  color: #fff; text-decoration: none; font-weight: 700;
-  align-self: flex-start; background: rgba(255,255,255,0.25);
-  padding: 8px 18px; border-radius: 20px; transition: background-color 0.2s;
-}
-.pickup-btn:hover { background: rgba(255,255,255,0.4); }
-.main-pick { grid-column: 1 / 2; grid-row: 1 / 3; min-height: 500px; }
-.sub-pick { grid-column: 2 / 3; }
-@media (max-width: 900px) {
-  .pickup-grid { grid-template-columns: 1fr; }
-  .main-pick, .sub-pick { grid-column: 1 / -1; }
-  .main-pick { min-height: 400px; }
-  .sub-pick { min-height: 250px; }
-}
-@media (max-width: 600px) { .pickup-title { font-size: 2em; } }
-
-/* --------------------------------------------------
-   카드/쿠폰 공통 (리스트/상세/플립)
--------------------------------------------------- */
-.coupon-card-scene { width: 320px; max-width:100vw; aspect-ratio: 2/3.7; perspective: 1000px; border-radius: 20px; border: 1.5px solid #e5eaf2;}
-body.dark-mode .coupon-card-scene { border: 1.5px solid #364366; }
-.coupon-card { width: 100%; height: 100%; position: relative; transition: transform 0.8s; transform-style: preserve-3d; cursor: pointer; box-shadow: 0 8px 24px rgba(30,40,90,0.14), 0 1.5px 8px rgba(30,40,90,0.07);}
-.coupon-card:hover {
-  box-shadow: 0 14px 36px rgba(40,60,120,0.18), 0 2px 12px rgba(40,60,120,0.10);
-  transform: translateY(-2px) scale(1.025);
-}
-.coupon-card {
-  transform-style: preserve-3d;
-}
-.card-face--front,
-.card-face--back {
-  backface-visibility: hidden;
-}
-.coupon-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 40px 20px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 32px 24px;
-}
-.filter-group {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-}
-
-.coupon-card:active { filter: brightness(.95); }
-.coupon-card-scene.is-flipped .coupon-card { transform: rotateY(180deg); box-shadow: 0 14px 48px rgba(60,100,220,0.16);}
-.coupon-card-scene.is-expired { opacity: 0.6; filter: grayscale(80%);}
-.card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; background: linear-gradient(135deg, var(--card-bg) 85%, #f5f7fa 100%); border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); display: flex; flex-direction: column; overflow: hidden; transition: box-shadow .5s cubic-bezier(.22,.61,.36,1);}
-body.dark-mode .card-face { background: linear-gradient(135deg, var(--card-bg) 85%, #22262d 100%);}
-.card-face--back { transform: rotateY(180deg); padding: 20px; justify-content: space-between;}
-.card-face--front:hover .card-image-wrapper img { transform: scale(1.05); }
-.card-face--back, .card-face--front { transition: filter .6s cubic-bezier(.44,1.42,.58,1);}
-.card-image-wrapper { width: 100%; aspect-ratio: 4/3; position: relative; overflow: hidden; background: #eee; flex-shrink: 0;}
-.card-image-wrapper img { position: absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transition: transform 0.4s ease;}
-.card-image-wrapper::after {
-  content: "";
-  position: absolute; left: 0; top: 0; width: 100%; height: 100%;
-  background: linear-gradient(120deg, rgba(0,0,0,0.12) 20%, rgba(20,100,220,0.13) 100%);
-  opacity: .72; pointer-events: none; transition: opacity .3s;
-}
-.card-face--front:hover .card-image-wrapper::after { opacity: .32; }
-.card-content { padding: 20px; text-align: center; flex-grow:1; display:flex; flex-direction:column;}
-.card-store-name { font-size: 20px; font-weight: bold; margin: 0 0 10px 0; }
-.card-offer { font-size: 32px; font-weight: 800; color: var(--danger-color); margin: 0 0 15px 0; }
-.card-description { font-size: 15px; color: var(--subtle-text); margin: 0 0 15px 0; flex-grow: 1;}
-.card-tags { margin-bottom: 15px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;}
-.tag {
-  background: var(--tag-bg); color: var(--tag-color); border: 1px solid var(--tag-border); font-size: 13px;
-  font-weight: 600; padding: 4px 10px; border-radius: 12px; border-width: 2px; letter-spacing: .01em;
-}
-.expiring-badge { position: absolute; top: 15px; right: -15px; background-color: #e74c3c; color: white; padding: 5px 30px; font-size: 14px; font-weight: bold; transform: rotate(45deg); z-index: 6; opacity: 0; transition: opacity .3s; pointer-events: none;
-  background: linear-gradient(90deg, #ff2f63 0%, #ff8c2f 100%);
-  box-shadow: 0 2px 8px rgba(255,30,70,0.14);
-  animation: badgeShake .6s infinite alternate;
-}
-.coupon-card-scene.is-expiring .expiring-badge { opacity: 1; }
-@keyframes badgeShake { 0% { transform: rotate(42deg) scale(1);} 70% { transform: rotate(48deg) scale(1.08);} 100% { transform: rotate(45deg) scale(1);} }
-.card-expiry { font-size: 14px; font-weight: 600; color: var(--subtle-text); margin-top: 10px;}
-.card-cta-button {
-  border-radius: 18px;
-  background: linear-gradient(90deg, #278cff 0%, #004aad 100%);
-  box-shadow: 0 2px 6px rgba(40,80,220,0.12);
-  font-size: 20px;
-  font-weight: 900;
-  padding: 17px 0;
-  letter-spacing: 0.01em;
-  transition: background .18s;
-  display: flex; align-items: center; justify-content: center; gap: 10px; color: #fff; text-align: center; text-decoration: none; margin-top: auto;
-}
-.card-cta-button:hover { background: linear-gradient(90deg, #185abc 0%, #278cff 100%); opacity: .93; }
-.save-btn { position: absolute; top: 10px; right: 10px; z-index: 5; background: rgba(0,0,0,0.4); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;}
-.save-btn.is-saved { background: var(--save-color); color: white;}
-.coupon-card-scene .save-btn.is-saved ~ .coupon-card { box-shadow: 0 0 0 3px #ffd75699; }
-.distance-badge {
-  position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
-  z-index: 10; background: rgba(0,0,0,0.7); color: #fff; border-radius: 20px;
-  padding: 6px 18px; font-size: 15px; font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,0.1); letter-spacing: 0.02em;
-}
-.card-category-icon { position: absolute; top: 10px; left: 10px; z-index: 5; background: rgba(0,0,0,0.4); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; }
-.back-qr-code { text-align: center; margin-bottom: 10px;}
-.back-qr-code img { max-width: 120px; border-radius: 8px;}
-.back-map-wrapper { width: 100%; aspect-ratio: 16/9; border-radius: 8px; overflow: hidden; margin-bottom: 10px;}
-.back-map-wrapper iframe { width: 100%; height: 100%; border: 0;}
-body.dark-mode .back-map-wrapper iframe { filter: invert(1) hue-rotate(200deg) brightness(0.9) contrast(1.2);}
-.back-section { margin-bottom: 10px; text-align: left;}
-.back-section h4 { font-size: 13px; color: #999; margin: 0 0 5px 0; text-transform: uppercase; border-bottom: 1px solid var(--border-color); padding-bottom: 3px;}
-.back-info-list { list-style: none; padding: 0; margin: 0; font-size: 14px; color: var(--subtle-text);}
-.back-info-list li { margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
-.back-info-list a { color: var(--primary-color); text-decoration: none; font-weight: bold; margin-left: 5px; white-space: nowrap; }
-.details-link-wrapper { margin-top: 15px; text-align: right;}
-.details-link { font-size: 14px; font-weight: bold; color: var(--primary-color); text-decoration: none; }
-.back-actions { display: flex; gap: 10px; margin-top: auto; }
-.action-btn { flex: 1; padding: 12px; border-radius: 8px; border: none; font-size: 16px; font-weight: bold; cursor: pointer;}
-.share-btn { background: #ffc107; color: #333;}
-.flip-back-btn { background: var(--flip-btn-bg); color: var(--flip-btn-color);}
-body.dark-mode { background: linear-gradient(135deg, #181c27 0%, #27324a 100%);}
-@media (max-width: 600px) {
-  .coupon-card-scene { margin-bottom: 24px; }
-
-  .list-title { font-size: 1.5em; }
-}
-.coupon-card {
-  width: 100%; height: 100%;
-  position: relative;
-  cursor: pointer;
-  transition: transform 0.8s;
-  transform-style: preserve-3d;
-  box-shadow: 0 8px 24px rgba(30,40,90,0.14), 0 1.5px 8px rgba(30,40,90,0.07);
-}
-/* hover, is-flipped 등은 별도 */
-.coupon-card:hover { /* … */ }
-.coupon-card-scene.is-flipped .coupon-card {
-  transform: rotateY(180deg);
-}
-.card-face {
-  position: absolute;
-  width: 100%; height: 100%;
-  backface-visibility: hidden;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-  display: flex; flex-direction: column;
-  overflow: hidden;
-  transition: box-shadow .5s cubic-bezier(.22,.61,.36,1);
-  /* background 는 변수 기반으로 하나만 */
-  background: linear-gradient(135deg, var(--card-bg) 85%, #f5f7fa 100%);
-}
-.card-face--back { transform: rotateY(180deg); }
-
-/* すべての画面幅でカテゴリエリアを中央寄せに */
-.filter-sort-wrapper {
-  display: flex;           /* 横並び */
-  flex-wrap: wrap;         /* 複数行に折り返し */
-  justify-content: center; /* 中央寄せ */
-  gap: 10px 16px;          /* ボタン間の余白（お好みで調整） */
-  margin-top: 12px;        /* 上段（周辺／保存済み）との隙間 */
-  align-self: stretch;
-    /* 1) 부모 너비 꽉 채우기 */
-    width: 100% !important;
-  /* 2) flex 아이템으로 늘어나기 */
-  flex: 1 1 auto !important;
-  /* 3) 부모의 align-items:center 에도 가로 폭을 유지하게 */
-  align-self: stretch !important;
-}
-
-/* 上段のボタン群と分離するため、controls-container の設定はそのまま残しつつ… */
-.controls-container {
-  display: flex;
-  flex-direction: column;  /* 上段と下段を縦積みに */
-  align-items: stretch;     /* 子要素(filter-sort-wrapper)を横いっぱいに広げる */
-  gap: 16px;               /* 上段⇔下段の距離 */
-  margin-bottom: 40px;
-}
-
-/* --------------------------------------------------
-   CONDITION BAR & FILTER/SORT
--------------------------------------------------- */
-.cond-bar {
-  display: flex; flex-wrap: wrap; gap: 15px;
-  background: #f8fafc; color: #31547e;
-  border-radius: 10px; padding: 10px 24px;
-  margin: 20px 0 18px 0; font-size: 15px; align-items: center;
-}
-.cond-bar b, .cond-bar .active { color: var(--primary-color);}
-.cond-bar .reset-btn { margin-left: 10px; background: var(--primary-color); color: #fff; border: none; border-radius: 20px; padding: 5px 18px; font-size: 15px; cursor: pointer;}
-
-.filter-group { display: flex; gap: 10px; flex-wrap: wrap; align-items: center;}
-.filter-group + .filter-group::before { content: '|'; color: #d1d9e6; margin-right: 10px; }
-.filter-btn {
-  background-color: var(--card-bg); border: 1px solid var(--border-color);
-  border-radius: 20px; padding: 10px 20px; font-size: 16px; font-weight: 600;
-  color: var(--text-color); cursor: pointer; transition: all 0.3s ease; display: flex; gap: 8px; align-items: center;
-}
-.filter-btn .count { font-size: 14px; color: #888; }
-.filter-btn.active {
-  background-color: var(--primary-color); color: #ffffff; border-color: var(--primary-color);
-}
-.filter-btn.active .count { color: rgba(255,255,255,0.8); }
-body.dark-mode .filter-btn { color: #eee; background: var(--card-bg); border-color: var(--border-color);}
-body.dark-mode .filter-btn.active { color: #fff; background: var(--primary-color); border-color: var(--primary-color);}
-.sort-controls select {
-  padding: 10px 15px; border-radius: 20px; border: 1px solid var(--border-color);
-  background: var(--card-bg); color: var(--text-color); font-size: 16px; font-weight: 600; cursor: pointer;
-}
-.view-switcher { display: flex; background-color: var(--border-color); border-radius: 20px; padding: 4px; align-self: center;}
-.view-btn {
-  border: none; background-color: transparent; padding: 6px 16px; border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer;
-  display: flex; align-items: center; gap: 8px; color: var(--subtle-text); transition: all 0.3s;
-}
-.view-btn.active {
-  background-color: var(--card-bg); color: var(--primary-color);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-/* ====================================
-   Swiper を中央寄せにする最小限の CSS
-==================================== */
-/* ====================================
-   SWIPER レイアウト調整
-==================================== */
-.swiper {
-  position: relative;
-  overflow: visible !important;
-  padding-left: 20px;   /* カード端が少し見える余白 */
-  padding-right: 20px;
-}
-
-/* 矢印を白地＋丸ボタンに */
-.swiper-button-prev,
-.swiper-button-next {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 20;
-  width: 36px;
-  height: 36px;
-  background: rgba(255,255,255,0.9);
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--dark-blue);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-.swiper-button-prev { left: 8px; }
-.swiper-button-next { right: 8px; }
-
-/* スライド間のギャップを今の 2/3 程度に */
-.swiper-slide {
-  width: auto !important;
-  flex-shrink: 0;
-  margin: 0 8px;  /* もとの 12px → 8px に調整 */
+  font-size: 18px;
+  pointer-events: none; /* 버튼 영역과 겹칠 때 클릭 방해 방지 */
 }
 
-/* モバイルでは必ず１枚ずつ */
-@media (max-width: 767px) {
-  .swiper-slide {
-    width: calc(100% - 40px) !important; /* 両端余白分を差し引いて１枚 */
+
+  .save-btn {
+    position:absolute; top:10px; right:10px;
+    z-index:5; background:rgba(0,0,0,0.4);
+    color:#fff; border:none; border-radius:50%;
+    width:40px; height:40px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px;
   }
+  .save-btn.is-saved { background: var(--save-color); }
+  .coupon-card-scene .save-btn.is-saved ~ .coupon-card {
+    box-shadow: 0 0 0 3px #ffd75699;
+  }
+
+  .distance-badge {
+    position:absolute; top:15px; left:50%;
+    transform:translateX(-50%);
+    z-index:10; background:rgba(0,0,0,0.7);
+    color:#fff; border-radius:20px; padding:6px 18px;
+    font-size:15px; font-weight:700;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    letter-spacing:.02em;
+  }
+/* 카드 뒷면 */
+.card-face--back {
+  transform: rotateY(180deg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  backface-visibility: hidden;
+  background: linear-gradient(135deg, var(--card-bg) 85%, #f5f7fa 100%);
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  transition: filter .6s cubic-bezier(.44,1.42,.58,1);
 }
 
--------------------------------------------------- */
-.list-title-wrapper { text-align: center; margin-bottom: 30px; }
-.list-title {
-  display: inline-block; padding: 12px 30px; background-color: var(--card-bg);
-  color: var(--dark-blue); font-size: 1.8em; font-weight: 800; border-radius: 30px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07); letter-spacing: 0.03em;
+/* QR 코드 */
+.back-qr-code {
+  text-align: center;
+  margin-bottom: 10px;
 }
-body.dark-mode .list-title { color: var(--dark-blue);}
-@media (max-width: 600px) { .list-title { font-size: 1.5em; } }
-
-/* --------------------------------------------------
-   MINI FEATURE (THEMED) SECTION
--------------------------------------------------- */
-.themed-feature-section { max-width: 1200px; margin: 40px auto; padding: 40px 20px; background-color: var(--card-bg); border-radius: 20px;}
-body.dark-mode .themed-feature-section { background-color: #272e3a; }
-.themed-title { text-align: center; margin-bottom: 30px; }
-.themed-title h4 {
-  font-family: 'Noto Serif JP', serif;
-  font-size: 2em; font-weight: 700; color: var(--dark-blue); margin: 0 0 10px 0;
-}
-.themed-title h4 span {
-  font-size: 0.6em; font-weight: 700; color: #fff;
-  background: var(--danger-color); padding: 4px 10px; border-radius: 12px; margin-right: 10px; vertical-align: middle;
-}
-.themed-title p { font-size: 1.1em; color: var(--subtle-text);}
-.themed-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-.themed-card {
-  display: block; text-decoration: none; border-radius: 15px; overflow: hidden;
-  position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.themed-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
-.themed-card img { width: 100%; height: 200px; object-fit: cover; }
-.themed-card-content {
-  position: absolute; bottom: 0; left: 0; right: 0; padding: 15px; color: #fff;
-  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-}
-.themed-card-content h5 { margin: 0 0 2px 0; font-size: 1.2em; font-weight: 700; }
-.themed-card-content p { margin: 0; font-size: 0.9em; opacity: 0.9; }
-.themed-article-link {
-  display: inline-block; margin-top: 15px; font-size: 1em; font-weight: 700; color: var(--primary-color); text-decoration: none;
-  background-color: var(--tag-bg); padding: 8px 18px; border-radius: 20px; border: 1px solid var(--tag-border); transition: all 0.2s ease;
-}
-.themed-article-link:hover { background-color: var(--primary-color); color: #fff; border-color: var(--primary-color); }
-
-/* --------------------------------------------------
-   에디터 코멘트
--------------------------------------------------- */
-.editor-comment {
-  background-color: rgba(0, 0, 0, 0.2); border-left: 4px solid var(--save-color);
-  padding: 12px 15px; margin: 5px 0 20px 0; border-radius: 0 8px 8px 0; text-align: left;
-}
-.editor-comment i { margin-right: 8px; color: var(--save-color);}
-.editor-comment span { font-size: 14px; line-height: 1.6; opacity: 0.95;}
-.editor-comment b { font-weight: 800; }
-
-/* --------------------------------------------------
-   MAP / LEAFLET STYLE
--------------------------------------------------- */
-#map-container { width: 100%; height: 600px; border-radius: 15px; margin-bottom: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);}
-.leaflet-popup-content-wrapper { border-radius: 8px; }
-.leaflet-popup-content { margin: 10px; text-align: center;}
-.leaflet-popup-content h4 { margin: 0 0 5px 0; font-size: 16px;}
-.leaflet-popup-content p { margin: 0; color: var(--danger-color); font-weight: bold; }
-body.dark-mode .back-map-wrapper iframe { filter: invert(1) hue-rotate(200deg) brightness(0.9) contrast(1.2);}
-
-/* --------------------------------------------------
-   FOOTER
--------------------------------------------------- */
-.site-footer { background-color: var(--dark-blue); color: rgba(255, 255, 255, 0.7); padding: 50px 20px;}
-.footer-content { max-width: 1200px; margin: 0 auto; text-align: center; }
-.footer-logo img { filter: brightness(0) invert(1) opacity(0.7); height: 30px;}
-.footer-about { max-width: 600px; margin: 20px auto; line-height: 1.6; }
-.footer-links { margin: 20px 0; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; list-style: none; padding: 0;}
-.footer-links a { color: rgba(255, 255, 255, 0.7); text-decoration: none; font-size: 14px;}
-.footer-links a:hover { color: #fff; }
-.footer-copyright { font-size: 13px; margin-top: 30px; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 30px; }
-
-/* --------------------------------------------------
-   EMPTY STATE, TOAST NOTIFY, 기타
--------------------------------------------------- */
-.empty-state { width: 100%; text-align: center; padding: 80px 20px; background: var(--card-bg); border-radius: 15px; margin-top:20px; display: none;}
-.empty-state.show { display: block;}
-.empty-state .fa-ghost { font-size: 48px; margin-bottom: 20px; color: #999;}
-.empty-state h3 { font-size: 24px; color: var(--text-color);}
-.empty-state p { font-size: 16px; color: var(--subtle-text); margin-bottom: 25px;}
-.empty-state .reset-btn { background: var(--primary-color); color: #fff; border: none; border-radius: 20px; padding: 10px 25px; font-size: 16px; cursor: pointer;}
-.toast-notification {
-  position: fixed; bottom: 20px; right: 20px; background: var(--dark-blue); color: white; padding: 15px 25px;
-  border-radius: 8px; z-index: 1001; opacity: 0; transition: opacity 0.3s, transform 0.3s; transform: translateY(20px);
-  display: flex; align-items: center; gap: 10px;
-}
-.toast-notification.show { opacity: 1; transform: translateY(0);}
-
-.swiper,
-.swiper-wrapper,
-.swiper-slide {
-  overflow-x: visible !important;
-  overflow-y: visible !important;
+.back-qr-code img {
+  max-width: 120px;
+  border-radius: 8px;
 }
 
-/* 카드가 좌우로 살짝 삐져나오도록 여유를 주고 싶으면 */
-.swiper {
-  padding-left: 20px;
-  padding-right: 20px;
+/* 구글맵 iframe 래퍼 */
+.back-map-wrapper {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 10px;
 }
-/* 1) 슬라이더 전체에 아래 여백을 늘려서 카드가 완전히 보이도록 */
-.swiper {
-  /* 기본 bottom padding 이 너무 작아서 pagination이 카드 위로 올라옵니다 */
-  padding-bottom: 80px !important;  
+.back-map-wrapper iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+body.dark-mode .back-map-wrapper iframe {
+  filter: invert(1) hue-rotate(200deg) brightness(0.9) contrast(1.2);
 }
 
-/* 2) pagination dot 위치를 약간 더 아래로 내립니다 */
-.swiper-pagination {
-  bottom: 16px !important;  /* 카드 하단에서 16px 위 */
-  z-index: 10;               /* 카드 위에 뜨지 않고 항상 뒤에 있도록 */
+/* 뒷면 정보 섹션 */
+.back-section {
+  margin-bottom: 10px;
+  text-align: left;
+}
+.back-section h4 {
+  font-size: 13px;
+  color: #999;
+  margin: 0 0 5px 0;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 3px;
 }
 
-/* (선택) 카드 컨테이너 아래에도 마진을 줘서, 
-   pagination까지 포함한 전체 요소가 본문에 닿지 않게 */
-.coupon-container {
-  margin-bottom: 120px;  /* 필요에 따라 조절 */
+/* 정보 리스트 */
+.back-info-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 14px;
+  color: var(--subtle-text);
 }
-/* ====================================
-   모바일 화면 전용 스타일 (767px 이하)
-==================================== */
-@media (max-width: 767px) {
+.back-info-list li {
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.back-info-list a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: bold;
+  margin-left: 5px;
+  white-space: nowrap;
+}
+
+/* 상세정보 링크 */
+.details-link-wrapper {
+  margin-top: 15px;
+  text-align: right;
+}
+.details-link {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+/* 뒷면 액션 버튼들 */
+.back-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+}
+.action-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.share-btn {
+  background: #ffc107;
+  color: #333;
+}
+.flip-back-btn {
+  background: var(--flip-btn-bg);
+  color: var(--flip-btn-color);
+}
+
+  /* --------------------------------------------------
+     FILTER/SORT & VIEW SWITCHER
+  -------------------------------------------------- */
+  .controls-container {
+    display:flex; flex-direction:column;
+    align-items:stretch; gap:16px; margin-bottom:40px;
+  }
+  .filter-sort-wrapper {
+    display:flex; flex-wrap:wrap;
+    justify-content:center; gap:10px 16px;
+    width:100% !important; flex:1 1 auto !important;
+    align-self:stretch !important;
+  }
+  .filter-group {
+    display:flex; gap:10px; flex-wrap:wrap;
+    align-items:center;
+  }
+  .filter-group + .filter-group::before {
+    content:'|'; color:#d1d9e6; margin-right:10px;
+  }
+  .filter-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius:20px; padding:10px 20px;
+    font-size:16px; font-weight:600;
+    display:flex; align-items:center; gap:8px;
+    cursor:pointer; transition:all .3s;
+  }
+  .filter-btn .count { font-size:14px; color:#888; }
+  .filter-btn.active {
+    background:var(--primary-color);
+    color:#fff; border-color:var(--primary-color);
+  }
+  .filter-btn.active .count { color:rgba(255,255,255,.8); }
+  body.dark-mode .filter-btn {
+    background:var(--card-bg); color:#eee;
+    border-color:var(--border-color);
+  }
+  body.dark-mode .filter-btn.active {
+    background:var(--primary-color); color:#fff;
+    border-color:var(--primary-color);
+  }
+  .sort-controls select {
+    padding:10px 15px; border-radius:20px;
+    border:1px solid var(--border-color);
+    background:var(--card-bg); color:var(--text-color);
+    font-size:16px; font-weight:600; cursor:pointer;
+  }
+  .view-switcher {
+    display:flex; background:var(--border-color);
+    border-radius:20px; padding:4px; align-self:center;
+  }
+  .view-btn {
+    border:none; background:transparent;
+    padding:6px 16px; border-radius:16px;
+    font-size:16px; font-weight:600; cursor:pointer;
+    display:flex; align-items:center; gap:8px;
+    color: var(--subtle-text);
+    transition: all .3s;
+  }
+  .view-btn.active {
+    background:var(--card-bg);
+    color:var(--primary-color);
+    box-shadow:0 2px 5px rgba(0,0,0,0.1);
+  }
+
+  /* --------------------------------------------------
+     SWIPER STYLES
+  -------------------------------------------------- */
   .swiper {
-    /* 모바일에서는 옆 카드가 보이지 않도록 overflow를 hidden으로 설정 */
-    overflow: hidden !important;
-    /* 모바일에서는 좌우 여백을 제거하여 카드가 화면에 꽉 차도록 함 */
-    padding-left: 0;
-    padding-right: 0;
+    position:relative;
+    overflow: visible !important;
+    padding-left:20px; padding-right:20px;
+    padding-bottom:80px !important;
   }
-}
+  .swiper-button-prev, .swiper-button-next {
+    position:absolute; top:50%; transform:translateY(-50%);
+    z-index:20; width:36px; height:36px;
+    background:rgba(255,255,255,.9);
+    border-radius:50%; display:flex;
+    align-items:center; justify-content:center;
+    color:var(--dark-blue);
+    box-shadow:0 2px 6px rgba(0,0,0,.1);
+  }
+  .swiper-button-prev { left:8px; }
+  .swiper-button-next { right:8px; }
+  .swiper-slide {
+    width:auto !important; flex-shrink:0; margin:0 8px;
+  }
+  @media (max-width:767px) {
+    .swiper-slide { width: calc(100% - 40px) !important; }
+  }
 
-  </style>
+  /* --------------------------------------------------
+     LIST TITLE
+  -------------------------------------------------- */
+  .list-title-wrapper { text-align:center; margin-bottom:30px; }
+  .list-title {
+    display:inline-block; padding:12px 30px;
+    background:var(--card-bg);
+    color:var(--dark-blue);
+    font-size:1.8em; font-weight:800;
+    border-radius:30px;
+    box-shadow:0 4px 15px rgba(0,0,0,.07);
+    letter-spacing:.03em;
+  }
+  body.dark-mode .list-title { color:var(--dark-blue); }
+  @media(max-width:600px){ .list-title { font-size:1.5em; } }
+
+  /* --------------------------------------------------
+     EMPTY STATE & TOAST
+  -------------------------------------------------- */
+  .empty-state {
+    width:100%; text-align:center; padding:80px 20px;
+    background:var(--card-bg); border-radius:15px;
+    margin-top:20px; display:none;
+  }
+  .empty-state.show { display:block; }
+  .empty-state .fa-ghost {
+    font-size:48px; margin-bottom:20px; color:#999;
+  }
+  .empty-state h3 { font-size:24px; color:var(--text-color); }
+  .empty-state p  { font-size:16px; color:var(--subtle-text); margin-bottom:25px; }
+  .empty-state .reset-btn {
+    background:var(--primary-color); color:#fff;
+    border:none; border-radius:20px;
+    padding:10px 25px; font-size:16px;
+    cursor:pointer; 
+  }
+  .toast-notification {
+    position:fixed; bottom:20px; right:20px;
+    background:var(--dark-blue); color:#fff;
+    padding:15px 25px; border-radius:8px;
+    z-index:1001; opacity:0;
+    transform: translateY(20px);
+    transition: opacity .3s, transform .3s;
+    display:flex; align-items:center; gap:10px;
+  }
+  .toast-notification.show {
+    opacity:1; transform: translateY(0);
+  }
+
+  /* --------------------------------------------------
+     THEMED FEATURE (머스트바이) SECTION
+  -------------------------------------------------- */
+  .themed-feature-section {
+    max-width:1200px; margin:40px auto; padding:40px 20px;
+    background:var(--card-bg); border-radius:20px;
+  }
+  body.dark-mode .themed-feature-section {
+    background:#272e3a;
+  }
+  .themed-title { text-align:center; margin-bottom:30px; }
+  .themed-title h4 {
+    font-family:'Noto Serif JP',serif;
+    font-size:2em; font-weight:700; color:var(--dark-blue);
+    margin:0 0 10px;
+  }
+  .themed-title h4 span {
+    font-size:0.6em; font-weight:700; color:#fff;
+    background:var(--danger-color); padding:4px 10px; border-radius:12px;
+    margin-right:10px; vertical-align:middle;
+  }
+  .themed-title p { font-size:1.1em; color:var(--subtle-text); }
+  .themed-article-link {
+    display:inline-block; margin-top:15px; font-size:1em;
+    font-weight:700; color:var(--primary-color);
+    text-decoration:none;
+    background:var(--tag-bg); padding:8px 18px;
+    border:1px solid var(--tag-border); border-radius:20px;
+    transition:all .2s;
+  }
+  .themed-article-link:hover {
+    background:var(--primary-color); color:#fff;
+    border-color:var(--primary-color);
+  }
+  .themed-grid {
+    display:grid;
+    grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
+  }
+  .themed-card {
+    display:block; position:relative; overflow:hidden;
+    border-radius:15px; box-shadow:0 4px 15px rgba(0,0,0,0.05);
+    transition:transform .3s,box-shadow .3s;
+    text-decoration:none;
+  }
+  .themed-card:hover {
+    transform:translateY(-5px);
+    box-shadow:0 8px 25px rgba(0,0,0,0.1);
+  }
+  .themed-card img {
+    width:100%; height:200px; object-fit:cover;
+  }
+  .themed-card-content {
+    position:absolute; bottom:0; left:0; right:0;
+    padding:15px; color:#fff;
+    background:linear-gradient(to top,rgba(0,0,0,0.7),transparent);
+  }
+  .themed-card-content h5 {
+    margin:0 0 2px; font-size:1.2em; font-weight:700;
+  }
+  .themed-card-content p {
+    margin:0; font-size:0.9em; opacity:.9;
+  }
+
+  /* --------------------------------------------------
+     FOOTER
+  -------------------------------------------------- */
+  .site-footer {
+    background: var(--dark-blue); color:rgba(255,255,255,0.7);
+    padding:50px 20px;
+  }
+  .footer-content { max-width:1200px; margin:0 auto; text-align:center; }
+  .footer-logo img {
+    filter:brightness(0) invert(1) opacity(.7); height:30px;
+  }
+  .footer-about {
+    max-width:600px; margin:20px auto; line-height:1.6;
+  }
+  .footer-links {
+    margin:20px 0; display:flex; justify-content:center;
+    gap:20px; flex-wrap:wrap; list-style:none; padding:0;
+  }
+  .footer-links a {
+    color:rgba(255,255,255,.7); font-size:14px;
+  }
+  .footer-links a:hover { color:#fff; }
+  .footer-copyright {
+    font-size:13px; margin-top:30px;
+    border-top:1px solid rgba(255,255,255,.1);
+    padding-top:30px;
+  }
+</style>
+
+
 </head>
 <body>
     <header class="site-header-hero">
@@ -1132,29 +1258,51 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- 카드 세팅 (저장/플립/카테고리) ---
-  function setupCards() {
-    dom.allSlides.forEach(slide => {
-      const scene = slide.querySelector('.coupon-card-scene');
-      const cardElem = slide.querySelector('.coupon-card');
-      // 저장
-      const saveBtn = slide.querySelector('.save-btn');
-      saveBtn.onclick = e => { e.stopPropagation(); toggleSaveCoupon(scene.dataset.couponId); };
-      // 플립
-      cardElem.onclick = e => {
-        if (e.target.closest('.save-btn')||e.target.closest('.flip-back-btn')||e.target.closest('.share-btn')) return;
-        scene.classList.toggle('is-flipped');
+// --- 카드 세팅 (저장/플립/카테고리) ---
+function setupCards() {
+  dom.allSlides.forEach(slide => {
+    const scene     = slide.querySelector('.coupon-card-scene');
+    const cardElem  = slide.querySelector('.coupon-card');
+
+    // 저장 버튼
+    const saveBtn = slide.querySelector('.save-btn');
+    saveBtn.onclick = e => {
+      e.stopPropagation();
+      toggleSaveCoupon(scene.dataset.couponId);
+    };
+
+    // 플립
+    cardElem.onclick = e => {
+      if (
+        e.target.closest('.save-btn')   ||
+        e.target.closest('.flip-back-btn') ||
+        e.target.closest('.share-btn')
+      ) return;
+      scene.classList.toggle('is-flipped');
+    };
+
+    // 뒷면 복귀 버튼
+    const backBtn = slide.querySelector('.flip-back-btn');
+    if (backBtn) {
+      backBtn.onclick = e => {
+        e.stopPropagation();
+        scene.classList.remove('is-flipped');
       };
-      // 뒷면 복귀
-      const backBtn = slide.querySelector('.flip-back-btn');
-      backBtn && (backBtn.onclick = e => { e.stopPropagation(); scene.classList.remove('is-flipped'); });
-      // 카테고리 아이콘
-      const icon = slide.querySelector('.card-category-icon i');
-      const cls = state.categoryIcons[scene.dataset.category]||state.categoryIcons.default;
-      icon && icon.className.split(' ').forEach(_c=>icon.classList.remove(_c));
-      icon && cls.split(' ').forEach(_c=>icon.classList.add(_c));
-    });
-    updateSaveButtonsVisuals();
-  }
+    }
+
+    // 카테고리 아이콘
+    const iconContainer = slide.querySelector('.card-category-icon');
+    if (iconContainer && scene) {
+      const category  = scene.dataset.category || 'default';
+      const iconClass = state.categoryIcons[category] || state.categoryIcons.default;
+      iconContainer.innerHTML = `<i class="${iconClass}"></i>`;
+    }
+  });
+
+  // 저장된 쿠폰 상태 반영
+  updateSaveButtonsVisuals();
+}
+
 
   // --- 저장 버튼 시각화 ---
   function updateSaveButtonsVisuals() {
@@ -1225,24 +1373,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- 정렬 & 필터링 & Swiper 재생성 ---
   function updateView() {
-    const master=state.masterSlides;
-    const fbtn=dom.controlsContainer.querySelector('.filter-btn.active'); if(!fbtn)return;
-    const f=fbtn.dataset.filter;
-    const term=dom.searchInput.value.trim().toLowerCase();
-    const sby=dom.sortSelect.value;
-    let filtered=master.filter(slide=>{
-      const scene=slide.querySelector('.coupon-card-scene');
-      const txt=scene.textContent.toLowerCase();
-      if(term&&!txt.includes(term))return false;
-      if(f==='saved'&&!state.savedCouponIds.includes(scene.dataset.couponId))return false;
-      if(f!=='all'&&f!=='nearby'&&scene.dataset.category!==f)return false;
-      return true;
-    });
-    if(sby==='expiry') filtered.sort((a,b)=>a.querySelector('.coupon-card-scene').dataset.expiry.localeCompare(b.querySelector('.coupon-card-scene').dataset.expiry));
-    else if(sby==='discount') filtered.sort((a,b)=>(+b.querySelector('.card-offer').textContent.match(/(\d+)/)[1]) - (+a.querySelector('.card-offer').textContent.match(/(\d+)/)[1]));
-    else if(f==='nearby') filtered.sort((a,b)=>a.querySelector('.coupon-card-scene').dataset.distance - b.querySelector('.coupon-card-scene').dataset.distance);
-    else filtered.sort((a,b)=>a.dataset.originalOrder - b.dataset.originalOrder);
+  // 1) 현재 선택된 필터와 검색어 가져오기
+  const filter = dom.controlsContainer.querySelector('.filter-btn.active').dataset.filter;
+  const term   = dom.searchInput.value.trim().toLowerCase();
 
+  // 2) 검색어·카테고리·저장쿠폰 필터링
+  let filtered = state.masterSlides.filter(slide => {
+    const scene = slide.querySelector('.coupon-card-scene');
+    const text  = scene.textContent.toLowerCase();
+    if (term && !text.includes(term)) return false;
+    if (filter === 'saved') {
+      return state.savedCouponIds.includes(scene.dataset.couponId);
+    }
+    if (filter !== 'all' && filter !== 'nearby' && scene.dataset.category !== filter) {
+      return false;
+    }
+    return true;
+  });
+
+  // 3) 정렬 로직
+  const sortBy = dom.sortSelect.value;
+  if (sortBy === 'expiry') {
+    filtered.sort((a, b) =>
+      a.querySelector('.coupon-card-scene').dataset.expiry
+        .localeCompare(b.querySelector('.coupon-card-scene').dataset.expiry)
+    );
+  } else if (sortBy === 'discount') {
+    const num = el => +(el.querySelector('.card-offer').textContent.match(/(\d+)/)||[0,0])[1];
+    filtered.sort((a, b) => num(b) - num(a));
+  } else if (filter === 'nearby') {
+    filtered.sort((a, b) =>
+      +a.querySelector('.coupon-card-scene').dataset.distance
+      - +b.querySelector('.coupon-card-scene').dataset.distance
+    );
+  } else {
+    filtered.sort((a, b) =>
+      (+a.dataset.originalOrder) - (+b.dataset.originalOrder)
+    );
+  }
     if(state.swiper) { state.swiper.destroy(true,true); state.swiper=null; }
     dom.swiperWrapper.innerHTML=''; filtered.forEach(s=>dom.swiperWrapper.appendChild(s));
     initSwiper();
@@ -1256,25 +1424,68 @@ document.addEventListener('DOMContentLoaded', () => {
   function showToast(msg){ const t=dom.emptyState.ownerDocument.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1600);}  
   function toggleTheme(){ document.body.classList.toggle('dark-mode'); localStorage.japankuruTheme=document.body.classList.contains('dark-mode')?'dark':'light'; }
 
-  // --- 이벤트 바인딩 ---
-  function bindEventListeners(){
-    dom.viewSwitcher.addEventListener('click',e=>{
-      const btn=e.target.closest('.view-btn'); if(!btn||btn.classList.contains('active'))return;
-      dom.viewSwitcher.querySelector('.active').classList.remove('active'); btn.classList.add('active');
-      state.currentView=btn.dataset.view;
-      const mapView=state.currentView==='map';
-      dom.swiper.style.display=mapView?'none':'block';
-      dom.mapContainer.style.display=mapView?'block':'none';
-      if(mapView){ state.map.invalidateSize(); updateView(); }
-    });
-    dom.controlsContainer.addEventListener('click',e=>{ const btn=e.target.closest('.filter-btn'); if(btn&&!btn.classList.contains('active')){ dom.controlsContainer.querySelectorAll('.filter-btn.active').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); if(btn.dataset.filter==='nearby') filterNearby(); else updateView(); }});
-    dom.sortSelect.addEventListener('change',updateView);
-    dom.themeToggle.addEventListener('click',toggleTheme);
-    dom.resetBtn.addEventListener('click',resetLogic);
-    dom.condBar && dom.condBar.addEventListener('click',e=> e.target.classList.contains('reset-btn') && resetLogic());
-    document.body.addEventListener('click', handleShareClick);
-    setupSearchInput();
-  }
+
+// --- 이벤트 바인딩 ---
+function bindEventListeners() {
+  // 1) 검색 입력 이벤트
+  dom.searchInput.addEventListener('input', updateView);
+  dom.searchInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') updateView();
+  });
+
+  // 2) 정렬(select) 이벤트
+  dom.sortSelect.addEventListener('change', updateView);
+
+  // 3) 필터 버튼 클릭 이벤트
+  dom.controlsContainer.addEventListener('click', e => {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn || btn.classList.contains('active')) return;
+    // 기존 active 비활성화
+    dom.controlsContainer
+      .querySelectorAll('.filter-btn.active')
+      .forEach(b => b.classList.remove('active'));
+    // 클릭한 버튼만 활성화
+    btn.classList.add('active');
+
+    // “周辺” 은 별도 처리, 그 외엔 updateView()
+    if (btn.dataset.filter === 'nearby') {
+      filterNearby();
+    } else {
+      updateView();
+    }
+  });
+
+  // 4) 뷰 전환 (리스트 ↔ 지도)
+  dom.viewSwitcher.addEventListener('click', e => {
+    const btn = e.target.closest('.view-btn');
+    if (!btn || btn.classList.contains('active')) return;
+    dom.viewSwitcher.querySelector('.active').classList.remove('active');
+    btn.classList.add('active');
+    state.currentView = btn.dataset.view;
+    const isMap = state.currentView === 'map';
+    dom.swiper.style.display     = isMap ? 'none' : 'block';
+    dom.mapContainer.style.display = isMap ? 'block' : 'none';
+    if (isMap) {
+      state.map.invalidateSize();
+      updateView();
+    }
+  });
+
+  // 5) 테마 토글
+  dom.themeToggle.addEventListener('click', toggleTheme);
+
+  // 6) 리셋 버튼
+  dom.resetBtn && dom.resetBtn.addEventListener('click', resetLogic);
+  dom.condBar  && dom.condBar.addEventListener('click', e => {
+    if (e.target.classList.contains('reset-btn')) resetLogic();
+  });
+
+  // 7) 공유 버튼 (delegation)
+  document.body.addEventListener('click', handleShareClick);
+
+  // 8) 서치아이콘 클릭 (if 별도 버튼이 있다면)
+  setupSearchInput();
+}
 
   // --- 초기화 ---
   function init(){
@@ -1292,6 +1503,7 @@ document.addEventListener('DOMContentLoaded', () => {
   init();
 });
 </script>
+
 
 
 </body>
