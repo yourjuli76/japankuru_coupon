@@ -296,10 +296,7 @@
     cursor: pointer;
     box-shadow: 0 8px 24px rgba(30,40,90,0.14),0 1.5px 8px rgba(30,40,90,0.07);
   }
-  .coupon-card:hover {
-    box-shadow: 0 14px 36px rgba(40,60,120,0.18),0 2px 12px rgba(40,60,120,0.10);
-    transform: translateY(-2px) scale(1.025);
-  }
+  
   .coupon-card-scene.is-flipped .coupon-card {
     box-shadow: 0 14px 48px rgba(60,100,220,0.16);
   }
@@ -854,28 +851,55 @@ button:active::after {
   z-index: 1;
 }
 
-/* 1) 카드 자체는 3D 보존 */
+  /* --------------------------------------------------
+     DARK MODE
+  -------------------------------------------------- */
+  body.dark-mode {
+    --card-bg: #2c2f3a;
+    --dark-blue: #1e2330;
+    --primary-color: #278cff;
+    --danger-color: #ff2f63;
+    --subtle-text: #b0b7c5;
+    --border-color: #364366;
+    --tag-bg: rgba(255, 255, 255, 0.1);
+    --tag-color: #fff;
+    --tag-border: rgba(255, 255, 255, 0.2);
+    --flip-btn-bg: #444b5a;
+    --flip-btn-color: #fff;
+  }
+
+ 
+/* 1) 호버 효과 무력화 */
+.coupon-card:hover {
+  transform: none !important;
+}
+
+/* 2) 3D 플립을 위해 preserve-3d, transition 재정의 */
 .coupon-card {
-  transform-style: preserve-3d;
-  transition: transform .6s ease;
+  transform-style: preserve-3d !important;
+  -webkit-transform-style: preserve-3d !important;
+  transition: transform 0.6s ease !important;
 }
 
-/* 2) 앞면은 0도로 고정 */
-.card-face--front {
-  transform: rotateY(0deg);
-  backface-visibility: hidden;
+/* 3) 앞뒤 면 숨김 (backface visibility) */
+.card-face {
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
 }
 
-/* 3) 뒷면은 처음부터 180도 뒤집힌 상태 */
+/* 4) 뒷면은 180° 회전시켜 뒤로 보이도록 */
 .card-face--back {
-  transform: rotateY(180deg);
-  backface-visibility: hidden;
+  transform: rotateY(180deg) !important;
+  -webkit-transform: rotateY(180deg) !important;
 }
 
-/* 4) .is-flipped 시 카드 전체를 180도 회전 */
+/* 5) is-flipped 클래스가 붙었을 때 컨테이너(카드 전체)를 180° 회전 */
 .coupon-card-scene.is-flipped .coupon-card {
-  transform: rotateY(180deg);
+  transform: rotateY(180deg) !important;
+  -webkit-transform: rotateY(180deg) !important;
 }
+
+
 
 </style>
 
@@ -1195,7 +1219,7 @@ button:active::after {
     <div class="pickup-grid">
       <div class="pickup-card main-pick">
         <img src="https://japankuru.com/gld-kanri/data/uploads/2023/11/kojima%E8%8B%B1%E8%AA%9E%E7%89%88%E4%BC%81%E6%A5%AD%E6%9C%89_kojima_EN_B-2.jpg" alt="メイン推薦クーポンイメージ" loading="eager" 
-        fetchpriority="high">>
+        fetchpriority="high">
         <div class="pickup-overlay"></div>
         <div class="pickup-content">
           <span class="pickup-badge best-pick">🌟 BEST PICK</span>
