@@ -868,33 +868,31 @@ button:active::after {
     --flip-btn-color: #fff;
   }
 
- 
-/* 1) 호버 효과 무력화 */
-.coupon-card:hover {
-  transform: none !important;
+/* Swiper 플립/카드 겹침 현상 방지용 */
+.swiper-backface-hidden .swiper-slide,
+.swiper-slide {
+  backface-visibility: visible !important;
+  -webkit-backface-visibility: visible !important;
 }
 
-/* 2) 3D 플립을 위해 preserve-3d, transition 재정의 */
 .coupon-card {
+  position: relative;
+  width: 100%; height: 100%;
   transform-style: preserve-3d !important;
   -webkit-transform-style: preserve-3d !important;
-  transition: transform 0.6s ease !important;
+  transition: transform 0.6s cubic-bezier(.22,.61,.36,1);
 }
-
-/* 3) 앞뒤 면 숨김 (backface visibility) */
-.card-face {
-  backface-visibility: hidden !important;
-  -webkit-backface-visibility: hidden !important;
-}
-
-/* 4) 뒷면은 180° 회전시켜 뒤로 보이도록 */
-.card-face--back {
+.coupon-card-scene.is-flipped .coupon-card {
   transform: rotateY(180deg) !important;
   -webkit-transform: rotateY(180deg) !important;
 }
-
-/* 5) is-flipped 클래스가 붙었을 때 컨테이너(카드 전체)를 180° 회전 */
-.coupon-card-scene.is-flipped .coupon-card {
+.card-face {
+  position: absolute;
+  width: 100%; height: 100%; top: 0; left: 0;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+}
+.card-face--back {
   transform: rotateY(180deg) !important;
   -webkit-transform: rotateY(180deg) !important;
 }
