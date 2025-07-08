@@ -41,7 +41,11 @@
     --flip-btn-bg: #343a40;
     --flip-btn-color: #f1f3f5;
   }
-
+/*기존 ::after(컬러 필터)와 겹치지 않도록 z-index 조정 */
+.card-image-wrapper img {
+  position: relative;
+  z-index: 0;
+}
   /* --------------------------------------------------
      RESET & BASE TYPOGRAPHY
   -------------------------------------------------- */
@@ -297,16 +301,13 @@
     transform: translateY(-2px) scale(1.025);
   }
   .coupon-card-scene.is-flipped .coupon-card {
-    transform: rotateY(180deg);
     box-shadow: 0 14px 48px rgba(60,100,220,0.16);
   }
   .coupon-card-scene.is-expired {
     opacity: .6; filter: grayscale(80%);
   }
 
-  .card-face--front, .card-face--back {
-    backface-visibility: hidden;
-  }
+
   .card-face {
     position: absolute; width: 100%; height: 100%;
     background: linear-gradient(135deg,var(--card-bg)85%,#f5f7fa 100%);
@@ -317,10 +318,7 @@
   body.dark-mode .card-face {
     background: linear-gradient(135deg,var(--card-bg)85%,#22262d 100%);
   }
-  .card-face--back {
-    transform: rotateY(180deg);
-    padding: 20px; justify-content: space-between;
-  }
+ 
   .card-face--front:hover .card-image-wrapper img { transform: scale(1.05); }
 
   .card-image-wrapper {
@@ -426,18 +424,7 @@
     letter-spacing:.02em;
   }
 /* 카드 뒷면 */
-.card-face--back {
-  transform: rotateY(180deg);
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  backface-visibility: hidden;
-  background: linear-gradient(135deg, var(--card-bg) 85%, #f5f7fa 100%);
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-  transition: filter .6s cubic-bezier(.44,1.42,.58,1);
-}
+
 
 /* QR 코드 */
 .back-qr-code {
@@ -744,6 +731,61 @@ body.dark-mode .back-map-wrapper iframe {
     margin:0; font-size:0.9em; opacity:.9;
   }
 
+.hero-search-form {
+  position: relative;
+}
+.hero-search-form .clear-btn {
+  position: absolute;
+  right: 60px; /* 검색 아이콘과 겹치지 않도록 */
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  color: #888;
+  opacity: 0.6;
+  transition: opacity .2s;
+}
+.hero-search-form .clear-btn:hover {
+  opacity: 1;
+}
+
+.controls-container {
+  position: sticky;
+  top: 0;
+  background: var(--card-bg);
+  z-index: 100;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+button {
+  position: relative;
+  overflow: hidden;
+}
+button:active::after {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  transition: transform .2s, opacity .4s;
+}
+@keyframes badgeBounce {
+  0%, 100% { transform: rotate(45deg) translateY(0); }
+  50%      { transform: rotate(45deg) translateY(-6px); }
+}
+.coupon-card-scene.is-expiring .expiring-badge {
+  animation: badgeShake .6s infinite alternate,
+             badgeBounce 1.5s infinite ease-in-out;
+}
+.coupon-card-scene.is-flipped .coupon-card {
+  /* 기존 회전에 더해 */
+  box-shadow: 0 24px 48px rgba(60,100,220,0.2),
+              0 4px 12px rgba(60,100,220,0.15);
+  transition: transform .6s cubic-bezier(.22,.61,.36,1),
+              box-shadow .4s ease;
+}
+.card-face--back {
+  background: linear-gradient(135deg, var(--card-bg) 75%, rgba(40, 80, 220, 0.05) 100%);
+}
+
+
   /* --------------------------------------------------
      FOOTER
   -------------------------------------------------- */
@@ -771,6 +813,70 @@ body.dark-mode .back-map-wrapper iframe {
     border-top:1px solid rgba(255,255,255,.1);
     padding-top:30px;
   }
+
+  /* 1) 카드 전체 둥글게 & 내부 내용 클리핑 */
+.coupon-card {
+  border-radius: 18px;    /* 버튼(.card-cta-button)과 동일한 반경 */
+  overflow: hidden;       /* 안쪽 .card-face 들이 부모 코너에 맞춰 잘리도록 */
+}
+
+/* 2) 카드 호버 시 보더 & 쉐도우 강조 */
+.coupon-card-scene {
+  transition: border-color .3s ease, box-shadow .3s ease;
+}
+.coupon-card-scene:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 8px 24px rgba(0,123,255,0.3), 0 2px 12px rgba(0,123,255,0.2);
+}
+
+/* 3) 매장명에 은은한 텍스트 쉐도우 */
+.card-store-name {
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
+}
+
+/* 4) 버튼 그라데이션 & 호버 트랜지션 업그레이드 */
+.card-cta-button {
+  background: linear-gradient(90deg, #278cff, #004aad);
+  transition: background .3s ease, transform .2s ease;
+}
+.card-cta-button:hover {
+  background: linear-gradient(90deg, #004aad, #278cff);
+  transform: translateY(-2px);
+}
+
+/* 5) 이미지 위에 부드러운 그라데이션 오버레이 (가독성·고급스러움 ↑) */
+.card-image-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(to top, rgba(0,0,0,0.3), transparent 60%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 1) 카드 자체는 3D 보존 */
+.coupon-card {
+  transform-style: preserve-3d;
+  transition: transform .6s ease;
+}
+
+/* 2) 앞면은 0도로 고정 */
+.card-face--front {
+  transform: rotateY(0deg);
+  backface-visibility: hidden;
+}
+
+/* 3) 뒷면은 처음부터 180도 뒤집힌 상태 */
+.card-face--back {
+  transform: rotateY(180deg);
+  backface-visibility: hidden;
+}
+
+/* 4) .is-flipped 시 카드 전체를 180도 회전 */
+.coupon-card-scene.is-flipped .coupon-card {
+  transform: rotateY(180deg);
+}
+
 </style>
 
 
@@ -793,6 +899,8 @@ body.dark-mode .back-map-wrapper iframe {
     <h1>JAPANKURU <b>Special Coupon</b></h1>
     <div class="hero-search-form">
       <input type="search" id="coupon-search" placeholder="店名、地域、キーワードで検索 (例: 新宿、ラーメン)">
+
+<i class="fa-solid fa-xmark clear-btn" onclick="document.getElementById('coupon-search').value=''; updateView();"></i>
       <i class="fa-solid fa-magnifying-glass search-icon"></i>
     </div>
     <div class="hero-sub">
